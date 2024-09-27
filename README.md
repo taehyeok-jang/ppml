@@ -25,6 +25,7 @@
 
 
 **Low-Cost High-Power Membership Inference Attacks (2024)**
+
 ![ml_rmia](https://github.com/user-attachments/assets/9ebae5b6-1ba7-4249-9743-1565ae855575)
 
 **Scalable Membership Inference Attacks via Quantile Regression (2024)**
