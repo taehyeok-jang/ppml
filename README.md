@@ -3,8 +3,16 @@
 
 ## Attacks
 
-
 ### Membership Inference Attacks 
+
+- approches
+  - higher confidence (prob distribution of predictions)
+  - label-only 
+
+- system architecture 
+  - multiple shadow models (Shokri et al., 2016)
+  - a single shadow model 
+
 
 | Year   | Title |  Adversarial Knowledge | Target Model  |   Venue  | Paper Link  | Code Link |
 |-------|--------|--------|--------|-----------|------------|---------------|
@@ -31,6 +39,23 @@
 
 ![ml_gap_attack](https://github.com/user-attachments/assets/d1e819c1-4ca9-4b40-8fd6-2538e8ee271f)
 
+
+
+### How to Set Up Our Experimental Environments? 
+
+=> depends on the required settings. 
+
+1. our model returns,
+    - only a class label 
+    - top k 
+    - prob distributions
+2. defense mechanism
+    1. our models are overfitted, 
+    2. our systems perturb a model’s predictions during inference 
+3. adversary’s goals 
+    1. computational efficiency (num of shadow models, num of queries to target model)  vs
+    2. accuracy, precision/recall
+  
 
 
 # References
