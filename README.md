@@ -56,6 +56,39 @@
 ![ml_mia_](https://github.com/user-attachments/assets/e13472f0-4182-4e1f-9448-aef9ba6ac0e1)
 
 
+### *Assumption for Membership Inference Attack
+
+**1 Data Distribution**
+
+1. Training Set (IN) ∩ Test Set (OUT) = ∅ 
+
+- D”: the entire data distribution 
+- D ~ D” (D ⊂ ~D”)
+
+**victim model** is trained on D. 
+
+e.g. in our experiments, 
+
+- D”: ImageNet (14.19M image, >20K classes, the overall distribution of the images of objects in the world) 
+- D: imagenet-1k (1.28M images, 1K classes) 
+
+2. each shadow model is trained from samples on, 
+- Q_in(x, y) =	{f ← T (D ∪ {(x, y)}) | D <- D”}
+- Q_out(x, y) =	{f ← T (D \ {(x, y)}) | D ← D”}
+
+the size of dataset for shadow model:  |T_i| ~= |S_i| (IN : OUT)
+
+
+**2 Model**
+
+victim model arch ~= shadow model arch
+
+1. victim model: pretrained on ImageNet 
+2. shadow model: 
+    1. model from scratch: difficult to train (resource consuming, poor performance)
+    2. pretrained model: share in-distribution data with victim model 
+
+
 ### How to Set Up Our Experimental Environments? 
 
 => depends on the required settings. 
