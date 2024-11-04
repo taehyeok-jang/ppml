@@ -107,7 +107,7 @@ e.g. in our experiments,
 (from Shokri, 2017) the paper assumes that
 
 **(target-shadow)**
-1. ∀i, D_train_shadow_i ∩ D_train_target = ∅ (base setting, worst case for attacker (harder to attack))
+1. ∀i, D_train_shadow_i ∩ D_train_target = ∅ (base setting, worst case for attacker; harder to attack)
 2. these datasets are also allowed to have some overlapped, (perform better)
 
 **(shadow-shadow)**
