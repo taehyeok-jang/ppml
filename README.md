@@ -41,6 +41,9 @@
 <br>
 
 <img src="https://github.com/user-attachments/assets/66ff3c16-9901-4146-ba41-04126068eed5" width="600"/>
+
+![lira_confsc](https://github.com/user-attachments/assets/f64ee33b-393c-4157-96bb-a47f9ea417be)
+**(eq. confidence score)**
 <img src="https://github.com/user-attachments/assets/d99556bb-ab39-4857-a69f-700658c5e139" width="600"/>
 <br>
 
@@ -48,8 +51,7 @@
 <br>
 
 
-![lira_confsc](https://github.com/user-attachments/assets/f64ee33b-393c-4157-96bb-a47f9ea417be)
-**eq. confidence score**
+
 
 ![lira_algo-1](https://github.com/user-attachments/assets/06de7da7-efaa-46a9-96b8-19deae146a58)
 
