@@ -45,6 +45,13 @@
 <br>
 
 <img src="https://github.com/user-attachments/assets/503b02bf-f933-4bda-aa66-1c376dd6d029" width="600"/>
+<br>
+
+
+![lira_confsc](https://github.com/user-attachments/assets/f64ee33b-393c-4157-96bb-a47f9ea417be)
+**eq. confidence score**
+
+![lira_algo-1](https://github.com/user-attachments/assets/06de7da7-efaa-46a9-96b8-19deae146a58)
 
 
 **Label-only membership inference attacks (2021)**
