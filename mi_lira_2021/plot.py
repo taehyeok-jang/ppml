@@ -28,6 +28,31 @@ import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
+'''
+- score: 
+φ(f(x)y). (logit scaling of p. log(p/(1-p), p=f(x)y) 
+
+>>> score 
+array([[10.13168889,  4.40828625],
+       [ 9.08919234, 14.36410262],
+       [12.61739964, 11.21139374],
+       ...,
+       [10.15480552,  8.78174738],
+       [ 7.48064894,  9.25800511],
+       [ 8.50198769,  7.83281414]])
+>>> score.shape
+(50000, 2)
+
+- keep: 
+ground-truth labels of membership. 
+
+if true, 
+
+>>> keep
+array([False, False, False, ...,  True, False, False])
+>>> keep.shape
+(50000,)
+'''
 
 def sweep(score, x):
     """
@@ -56,7 +81,12 @@ def load_data(p):
 
     scores = np.array(scores)
     keep = np.array(keep)[:,:scores.shape[1]]
+    
+    print("load_data...")
 
+    print("scores: ", scores.shape)
+    print("keep: ", keep.shape)
+    
     return scores, keep
 
 def generate_ours(keep, scores, check_keep, check_scores, in_size=100000, out_size=100000,
@@ -69,6 +99,7 @@ def generate_ours(keep, scores, check_keep, check_scores, in_size=100000, out_si
     dat_in = []
     dat_out = []
 
+    # scores.shape[1] = 50K
     for j in range(scores.shape[1]):
         dat_in.append(scores[keep[:,j],j,:])
         dat_out.append(scores[~keep[:,j],j,:])
@@ -78,6 +109,9 @@ def generate_ours(keep, scores, check_keep, check_scores, in_size=100000, out_si
 
     dat_in = np.array([x[:in_size] for x in dat_in])
     dat_out = np.array([x[:out_size] for x in dat_out])
+
+    print("dat_in: ", dat_in.shape)#     dat_in:  (50000, 126, 2)
+    print("dat_out: ", dat_out.shape)#     dat_out:  (50000, 126, 2)
 
     mean_in = np.median(dat_in, 1)
     mean_out = np.median(dat_out, 1)
@@ -91,6 +125,12 @@ def generate_ours(keep, scores, check_keep, check_scores, in_size=100000, out_si
 
     prediction = []
     answers = []
+    
+    # these are used as data distribution of a target model, selected from one of trained models.
+    print("check_keep: ", check_keep.shape)#     check_keep:  (1, 50000)
+    print("check_scores: ", check_scores.shape)#     check_scores:  (1, 50000, 2)
+
+    # iterate per each data point (e.g. 50K)
     for ans, sc in zip(check_keep, check_scores):
         pr_in = -scipy.stats.norm.logpdf(sc, mean_in, std_in+1e-30)
         pr_out = -scipy.stats.norm.logpdf(sc, mean_out, std_out+1e-30)

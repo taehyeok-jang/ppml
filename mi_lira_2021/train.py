@@ -62,12 +62,19 @@ class TrainLoop(objax.Module):
         self.params = EasyDict(kwargs)
 
     def train_step(self, summary: Summary, data: dict, progress: np.ndarray):
+        
+        print("data['image'].numpy() :", data['image'].numpy().shape)
+        print("data['label'].numpy() :", data['label'].numpy().shape)
+        
         kv = self.train_op(progress, data['image'].numpy(), data['label'].numpy())
         for k, v in kv.items():
             if jn.isnan(v):
                 raise ValueError('NaN, try reducing learning rate', k)
+            if isinstance(v, jn.ndarray) and v.ndim > 0:
+                v = v.item()  # Converts array to a scalar if it's a single value array
+                
             if summary is not None:
-                summary.scalar(k, float(v))
+                summary.scalar(k, float(v)) # write lr / loss
 
     def train(self, num_train_epochs: int, train_size: int, train: DataSet, test: DataSet, logdir: str, save_steps=100, patience=None):
         """
@@ -131,7 +138,10 @@ class MemModule(TrainLoop):
 
         @objax.Function.with_vars(self.model.vars())
         def loss(x, label):
-            logit = self.model(x, training=True)
+            
+            print("x: ", x.shape) # (256, 3, 224, 224)
+            
+            logit = self.model(x, training=True) # (256, 1000)
             loss_wd = 0.5 * sum((v.value ** 2).sum() for k, v in self.model.vars().items() if k.endswith('.w'))
             loss_xe = objax.functional.loss.cross_entropy_logits(logit, label).mean()
             return loss_xe + loss_wd * self.params.weight_decay, {'losses/xe': loss_xe, 'losses/wd': loss_wd}
@@ -236,13 +246,16 @@ def get_data(seed):
     else:
         raise
 
+    
+    # customized DataSet class supports various pre-processing methods, 
+    # including nchw() (transpose[0, 3, 1, 2])
     train = DataSet.from_arrays(xs, ys,
                                 augment_fn=aug)
     test = DataSet.from_tfds(tfds.load(name=FLAGS.dataset, split='test', data_dir=DATA_DIR), xs.shape[1:])
     train = train.cache().shuffle(8192).repeat().parse().augment().batch(FLAGS.batch)
     train = train.nchw().one_hot(nclass).prefetch(16)
     test = test.cache().parse().batch(FLAGS.batch).nchw().prefetch(16)
-
+    
     return train, test, xs, ys, keep, nclass
 
 def main(argv):
@@ -284,6 +297,13 @@ def main(argv):
         os.makedirs(logdir)
 
     train, test, xs, ys, keep, nclass = get_data(seed)
+        
+    print("train: ", train.shape)
+    print("test: ", test.shape)
+    
+    print("xs: ", xs.shape)
+    print("ys: ", ys.shape)
+
 
     # Define the network and train_it
     tm = MemModule(network(FLAGS.arch), nclass=nclass,

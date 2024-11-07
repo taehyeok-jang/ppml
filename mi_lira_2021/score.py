@@ -50,7 +50,8 @@ def load_one(base):
         
         predictions[np.arange(COUNT),:,:,labels[:COUNT]] = 0
         y_wrong = np.sum(predictions, axis=3)
-
+        
+        # logit scaling: log(p/(1-p)), p=f(x)_y
         logit = (np.log(y_true.mean((1))+1e-45) - np.log(y_wrong.mean((1))+1e-45))
 
         np.save(os.path.join(logdir, base, 'scores', f), logit)

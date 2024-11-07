@@ -1,0 +1,14 @@
+2024-10-10 13:53:52.806218: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-10-10 13:53:52.816954: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-10-10 13:53:52.820157: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-10-10 13:53:54.052816: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+deleting run 0 that did not complete.
+starting run 0.
+I1010 13:53:57.866966 139729375598400 dataset_info.py:617] Load dataset info from /nethome/dsanyal7/TFDS/cifar10/3.0.2
+I1010 13:53:57.871835 139729375598400 dataset_builder.py:579] Reusing dataset cifar10 (/nethome/dsanyal7/TFDS/cifar10/3.0.2)
+I1010 13:53:57.872743 139729375598400 reader.py:261] Creating a tf.data.Dataset reading 1 files located in folders: /nethome/dsanyal7/TFDS/cifar10/3.0.2.
+I1010 13:53:57.907421 139729375598400 logging_logger.py:49] Constructing tf.data.Dataset cifar10 for split test, from /nethome/dsanyal7/TFDS/cifar10/3.0.2
+I1010 13:53:58.220669 139729375598400 xla_bridge.py:895] Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+I1010 13:53:58.222520 139729375598400 xla_bridge.py:895] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+2024-10-10 13:53:58.281704: W external/xla/xla/service/gpu/nvptx_compiler.cc:893] The NVIDIA driver's CUDA version is 12.4 which is older than the PTX compiler version 12.6.77. Because the driver is older than the PTX compiler version, XLA is disabling parallel compilation, which may slow down compilation. You should update your NVIDIA driver or use the NVIDIA-provided CUDA forward compatibility packages.
+No checkpoints found. Skipping restoring variables.
