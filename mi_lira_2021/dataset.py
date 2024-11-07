@@ -32,28 +32,32 @@ class DataSet:
 
     def __init__(self, data: tf.data.Dataset,
                  image_shape: Tuple[int, int, int],
+                 dataset_size: int, 
                  augment_fn: Optional[Callable] = None,
                  parse_fn: Optional[Callable] = record_parse):
         self.data = data
-        self.parse_fn = parse_fn
-        self.augment_fn = augment_fn
         self.image_shape = image_shape
+        self.dataset_size = dataset_size
+        self.augment_fn = augment_fn
+        self.parse_fn = parse_fn
+
 
     @classmethod
     def from_arrays(cls, images: np.ndarray, labels: np.ndarray, augment_fn: Optional[Callable] = None):
-        return cls(tf.data.Dataset.from_tensor_slices(dict(image=images, label=labels)), images.shape[1:],
+        return cls(tf.data.Dataset.from_tensor_slices(dict(image=images, label=labels)), images.shape[1:], len(images),
                    augment_fn=augment_fn, parse_fn=None)
 
     @classmethod
     def from_files(cls, filenames: List[str],
                    image_shape: Tuple[int, int, int],
+                   dataset_size: int, 
                    augment_fn: Optional[Callable],
                    parse_fn: Optional[Callable] = record_parse):
         filenames_in = filenames
         filenames = sorted(sum([tf.io.gfile.glob(x) for x in filenames], []))
         if not filenames:
             raise ValueError('Empty dataset, files not found:', filenames_in)
-        return cls(tf.data.TFRecordDataset(filenames), image_shape, augment_fn=augment_fn, parse_fn=parse_fn)
+        return cls(tf.data.TFRecordDataset(filenames), image_shape, dataset_size, augment_fn=augment_fn, parse_fn=parse_fn)
 
     @classmethod
     def from_tfds(cls, dataset: tf.data.Dataset, image_shape: Tuple[int, int, int],
@@ -71,7 +75,7 @@ class DataSet:
         def call_and_update(*args, **kwargs):
             v = getattr(self.__dict__['data'], item)(*args, **kwargs)
             if isinstance(v, tf.data.Dataset):
-                return self.__class__(v, self.image_shape, augment_fn=self.augment_fn, parse_fn=self.parse_fn)
+                return self.__class__(v, self.image_shape, dataset_size=self.dataset_size, augment_fn=self.augment_fn, parse_fn=self.parse_fn)
             return v
 
         return call_and_update

@@ -82,6 +82,9 @@ def main(argv):
                         shift=0, reflect=True, stride=1)
 
     for path in sorted(os.listdir(os.path.join(FLAGS.logdir))):
+                
+        print("running on... ", path)
+        
         if re.search(FLAGS.regex, path) is None:
             print("Skipping from regex")
             continue
@@ -104,6 +107,9 @@ def main(argv):
             first = max_epoch-1
 
         for epoch in range(first,max_epoch+1):
+            
+            print("epoch: ", epoch)
+            
             if not os.path.exists(os.path.join(FLAGS.logdir, path, "ckpt", "%010d.npz"%epoch)):
                 # no checkpoint saved here
                 continue
