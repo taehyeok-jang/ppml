@@ -1,4 +1,9 @@
 
+1. [Experiment Settings](#experiment-settings)
+   - 1.1 [CIFAR-10 (60K, 10 classes)](#cifar-10-60k-10-classes)
+   - 1.2 [CIFAR-100 (60K, 100 classes)](#cifar-100-60k-100-classes)
+   
+
 # Experiment Settings 
 
 The evaluation of membership inference attacks will **be consistent** between, 
