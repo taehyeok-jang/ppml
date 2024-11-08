@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--n_queries", default=2, type=int)
 parser.add_argument("--model", default="vgg19", type=str)
 parser.add_argument("--savedir", default="exp/cifar10", type=str)
+parser.add_argument("--mode", default="train", type=str)
 args = parser.parse_args()
 
 
@@ -34,6 +35,10 @@ def run():
     pl.seed_everything(seed)
 
     DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("mps")
+
+    print("parameter settings:")
+    for arg in vars(args):
+        print(f"{arg}: {getattr(args, arg)}")
 
     # Dataset
     transform = transforms.Compose(
@@ -55,8 +60,16 @@ def run():
     print(train_ds.indices[:100])
     print("eval_ds: ", len(eval_ds))
     print(eval_ds.indices[:100])
+
+    if args.mode == "train":
+        print("use train_ds") 
+        dl_ = DataLoader(train_ds, batch_size=128, shuffle=False, num_workers=4)    
+    elif args.mode == "eval":
+        print("use eval_ds")
+        dl_ = DataLoader(eval_ds, batch_size=128, shuffle=False, num_workers=4)    
+    else:
+        raise ValueError("unknown mode")
     
-    train_dl = DataLoader(train_ds, batch_size=128, shuffle=False, num_workers=4)
 
     print(f"Loading {args.savedir}...")
     m = network(args.model, pretrained_=True)
@@ -73,7 +86,7 @@ def run():
     logits_n = []
     for i in range(args.n_queries):
         logits = []
-        for x, _ in tqdm(train_dl):
+        for x, _ in tqdm(dl_):
             x = x.to(DEVICE)
             outputs = m(x)
 
@@ -92,7 +105,16 @@ def run():
     print("logits_n: ", logits_n.shape) 
     # print(logits_n)
 
-    np.save(os.path.join(args.savedir, "logits.npy"), logits_n)
+    if args.mode == "train":
+        print("save to logits.npy") 
+        np.save(os.path.join(args.savedir, "logits.npy"), logits_n)
+    elif args.mode == "eval":
+        print("save to logits_eval.npy") 
+        np.save(os.path.join(args.savedir, "logits_eval.npy"), logits_n)
+    else:
+        raise ValueError("unknown mode")
+        
+    
 
 
 def network(arch: str, pretrained_: bool):

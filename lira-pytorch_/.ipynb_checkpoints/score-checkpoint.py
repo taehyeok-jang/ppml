@@ -30,6 +30,7 @@ import pytorch_lightning as pl
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--savedir", default="exp/cifar10", type=str)
+parser.add_argument("--mode", default="", type=str)
 
 args = parser.parse_args()
 
@@ -37,15 +38,22 @@ seed = 1583745484
 
 def load_one(path):
 
+    print(f"processing {path}...")
+    
     pl.seed_everything(seed)
     
     """
     This loads a logits and converts it to a scored prediction.
     """
-    opredictions = np.load(os.path.join(path, "logits.npy"))  # [n_examples, n_augs, n_classes]
-
-    print(f"processing {path}...")
-
+    if args.mode == "train":
+        print("use logits.npy") 
+        opredictions = np.load(os.path.join(path, "logits.npy")) # [n_examples, n_augs, n_classes]
+    elif args.mode == "eval":
+        print("use logits_eval.npy")
+        opredictions = np.load(os.path.join(path, "logits_eval.npy")) # [n_examples, n_augs, n_classes]
+    else:
+        raise ValueError("unknown mode")
+    
     # Be exceptionally careful.
     # Numerically stable everything, as described in the paper.
     predictions = opredictions - np.max(opredictions, axis=-1, keepdims=True)
@@ -76,11 +84,19 @@ def get_labels():
     # print(train_ds.indices[:100])
     # print("eval_ds: ", len(eval_ds))
     # print(eval_ds.indices[:100])
+
+    if args.mode == "train":
+        print("returning train_targets") 
+        all_targets = np.array(train_ds.dataset.targets)
+        targets = all_targets[train_ds.indices]
+    elif args.mode == "eval":
+        print("returning eval_targets") 
+        all_targets = np.array(eval_ds.dataset.targets)
+        targets = all_targets[eval_ds.indices]
+    else:
+        raise ValueError("unknown mode")
     
-    all_targets = np.array(train_ds.dataset.targets)
-    train_targets = all_targets[train_ds.indices]
-    
-    return train_targets
+    return targets
 
 
 def load_stats():
