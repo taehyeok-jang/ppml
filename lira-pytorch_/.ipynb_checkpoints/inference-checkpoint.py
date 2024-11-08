@@ -12,7 +12,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import CIFAR10, CIFAR100
 from tqdm import tqdm
 
 from wide_resnet import WideResNet
@@ -22,8 +22,9 @@ import pytorch_lightning as pl
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_queries", default=2, type=int)
 parser.add_argument("--model", default="vgg19", type=str)
+parser.add_argument("--dataset", default="", type=str)
 parser.add_argument("--savedir", default="exp/cifar10", type=str)
-parser.add_argument("--mode", default="train", type=str)
+parser.add_argument("--mode", default="train", type=str) # train / eval
 args = parser.parse_args()
 
 
@@ -52,10 +53,19 @@ def run():
     
     torch.manual_seed(seed)
     datadir = Path().home() / "dataset"
-        
-    train_ds = CIFAR10(root=datadir, train=True, download=True, transform=transform)
-    train_ds, eval_ds = random_split(train_ds, [0.8, 0.2])
 
+    
+    if args.dataset == "cifar10":
+        print("import cifar10...")
+        train_ds = CIFAR10(root=datadir, train=True, download=True, transform=transform)
+    elif args.dataset == "cifar100":
+        print("import cifar100...")
+        train_ds = CIFAR100(root=datadir, train=True, download=True, transform=transform)
+    else:
+        raise ValueError("undefined dataset")
+
+    train_ds, eval_ds = random_split(train_ds, [0.8, 0.2])
+        
     print("train_ds: ", len(train_ds))
     print(train_ds.indices[:100])
     print("eval_ds: ", len(eval_ds))
@@ -138,8 +148,18 @@ def network(arch: str, pretrained_: bool):
     else:
         raise ValueError(f"Model {model_name} not available.")
         
-    # for VGG-19
-    model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=10)
+    if args.dataset == "cifar10":
+        print("modify output layers for cifar10...")
+        # for VGG-19
+        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=10)
+        
+    elif args.dataset == "cifar100":
+        print("modify output layers for cifar100...")
+        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=100)
+        
+    else:
+        raise ValueError("undefined dataset")    
+
     return model
 
 
