@@ -24,13 +24,14 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, random_split
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import CIFAR10, CIFAR100
 
 import pytorch_lightning as pl
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--savedir", default="exp/cifar10", type=str)
-parser.add_argument("--mode", default="", type=str)
+parser.add_argument("--dataset", default="", type=str)
+parser.add_argument("--mode", default="", type=str) # train / eval
 
 args = parser.parse_args()
 
@@ -77,7 +78,16 @@ def load_one(path):
 def get_labels():
     torch.manual_seed(seed)
     datadir = Path().home() / "dataset"
-    train_ds = CIFAR10(root=datadir, train=True, download=True)
+
+    if args.dataset == "cifar10":
+        print("import cifar10...")
+        train_ds = CIFAR10(root=datadir, train=True, download=True)
+    elif args.dataset == "cifar100":
+        print("import cifar100...")
+        train_ds = CIFAR100(root=datadir, train=True, download=True)
+    else:
+        raise ValueError("undefined dataset")
+    
     train_ds, eval_ds = random_split(train_ds, [0.8, 0.2])
 
     # print("train_ds: ", len(train_ds))
