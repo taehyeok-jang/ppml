@@ -58,8 +58,14 @@ def load_data():
     global scores, keep
     scores = []
     keep = []
+    
+    paths = []
 
     for path in os.listdir(args.savedir):
+        if path == "victim":
+            continue
+        paths.append(path)
+
         scores.append(np.load(os.path.join(args.savedir, path, "scores.npy")))
         keep.append(np.load(os.path.join(args.savedir, path, "keep.npy")))
     scores = np.array(scores)
@@ -76,7 +82,6 @@ def generate_ours(keep, scores, check_keep, check_scores, in_size=100000, out_si
     """
     dat_in = []
     dat_out = []
-
 
     # iterate data points (x, y).
     for j in range(scores.shape[1]):
