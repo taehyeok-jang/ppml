@@ -20,50 +20,53 @@ Therefore, we **expect the similar results** across both experimental settings.
 
 ### the experimental settings (LiRA paper)
 
-![fprtpr_vgg19_asis](https://github.com/user-attachments/assets/6d502c45-2e9a-4c33-8cb9-4c99edc6909d)
+![fprtpr_vit_large_patch16_224_cifar10_asis](https://github.com/user-attachments/assets/3a2e8b07-1ea8-419e-9444-3086bf9ec004)
 
-| Attack                        | AUC    | Accuracy | TPR@0.1%FPR |
-|-------------------------------|--------|----------|-------------|
-| Ours (online)                 | 0.6801 | 0.6117   | 0.0423      |
-| Ours (online, fixed variance) | 0.6781 | 0.6097   | 0.0366      |
-| Ours (offline)                | 0.5252 | 0.5344   | 0.0097      |
-| Ours (offline, fixed variance)| 0.5343 | 0.5369   | 0.0111      |
-| Global threshold              | 0.5583 | 0.5688   | 0.0010      |
+
+| Attack                          | AUC   | Accuracy | TPR@0.1% FPR |
+|---------------------------------|-------|----------|--------------|
+| Ours (online)                   | 0.5273 | 0.5164   | 0.0123       |
+| Ours (online, fixed variance)   | 0.5234 | 0.5141   | 0.0116       |
+| Ours (offline)                  | 0.5089 | 0.5116   | 0.0072       |
+| Ours (offline, fixed variance)  | 0.5076 | 0.5104   | 0.0049       |
+| Global threshold                | 0.5025 | 0.5085   | 0.0007       |
+
 
 ### 80-20 offline attack 
 
-![fprtpr_vgg19_80-20_offline_attack](https://github.com/user-attachments/assets/ab6a6f6c-5d34-451b-8c62-97603707c716)
+![fprtpr_vit_large_patch16_224_cifar10_80-20_offline_attack](https://github.com/user-attachments/assets/c412e096-9b9a-4ae9-b2a9-a787eddb343d)
+
 
 | Attack                        | AUC    | Accuracy | TPR@0.1%FPR |
 |-------------------------------|--------|----------|-------------|
-| Ours (offline)                | 0.5609 | 0.5607   | 0.0246      |
-| Ours (offline, fixed variance)| 0.5745 | 0.5608   | 0.0227      |
-| Global threshold              | 0.5599 | 0.5717   | 0.0012      |
+| Ours (offline)                  | 0.5034 | 0.5092   | 0.0012       |
+| Ours (offline, fixed variance)  | 0.5088 | 0.5091   | 0.0018       |
+| Global threshold                | 0.5078 | 0.5125   | 0.0002       |
 
 
 ## CIFAR-100 (60K, 100 classes)
 
 ### the experimental settings (LiRA paper)
+![fprtpr_vit_large_patch16_224_cifar100_asis](https://github.com/user-attachments/assets/a53277b1-6127-4a33-920e-7dc07ae844de)
 
-![fprtpr_vgg19_cifar100_asis](https://github.com/user-attachments/assets/b1b8cc0d-44fd-475f-995f-30a1e5871df8)
 
 | Attack                        | AUC    | Accuracy | TPR@0.1%FPR |
-|-------------------------------|--------|----------|-------------|
-| Ours (online)                 | 0.8600 | 0.7600   | 0.1025      |
-| Ours (online, fixed variance) | 0.8580 | 0.7620   | 0.0782      |
-| Ours (offline)                | 0.6707 | 0.6491   | 0.0289      |
-| Ours (offline, fixed variance)| 0.6765 | 0.6402   | 0.0221      |
-| Global threshold              | 0.6796 | 0.6631   | 0.0015      |
+|---------------------------------|-------|----------|--------------|
+| Ours (online)                   | 0.6789 | 0.6055   | 0.0775       |
+| Ours (online, fixed variance)   | 0.6801 | 0.6083   | 0.0805       |
+| Ours (offline)                  | 0.5796 | 0.5676   | 0.0401       |
+| Ours (offline, fixed variance)  | 0.5844 | 0.5678   | 0.0501       |
+| Global threshold                | 0.5336 | 0.5514   | 0.0016       |
 
 ### 80-20 offline attack 
-
-![fprtpr_vgg19_cifar100_80-20_offline_attack](https://github.com/user-attachments/assets/ca9be04b-a093-4c42-8a72-3c43b1c99658)
+![fprtpr_vit_large_patch16_224_cifar100_80-20_offline_attack](https://github.com/user-attachments/assets/0c48a7c1-4fc0-45a3-96c9-793b895ce1d6)
 
 
 | Attack                        | AUC    | Accuracy | TPR@0.1%FPR |
 |-------------------------------|--------|----------|-------------|
-| Ours (offline)                | 0.6717 | 0.6513   | 0.0229      |
-| Ours (offline, fixed variance)| 0.6800 | 0.6448   | 0.0395      |
-| Global threshold              | 0.6618 | 0.6488   | 0.0010      |
+| Ours (offline)                  | 0.5353 | 0.5344   | 0.0074       |
+| Ours (offline, fixed variance)  | 0.5382 | 0.5360   | 0.0160       |
+| Global threshold                | 0.5289 | 0.5485   | 0.0004       |
+
 
 
