@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
 from torchvision.datasets import CIFAR10, CIFAR100
 from tqdm import tqdm
+import timm
 
 from wide_resnet import WideResNet
 
@@ -42,14 +43,20 @@ def run():
         print(f"{arg}: {getattr(args, arg)}")
 
     # Dataset
-    transform = transforms.Compose(
-        [
+    if args.model == "vit_large_patch16_224":
+        transform = transforms.Compose([
+            transforms.Resize(224),
+            transforms.ToTensor(),
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+        
+    else: 
+        transform = transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomCrop(32, padding=4),
             transforms.ToTensor(),
             transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]),
-        ]
-    )
+        ])    
     
     torch.manual_seed(seed)
     datadir = Path().home() / "dataset"
@@ -123,9 +130,10 @@ def run():
         np.save(os.path.join(args.savedir, "logits_eval.npy"), logits_n)
     else:
         raise ValueError("unknown mode")
+
+    print("save done")
         
     
-
 
 def network(arch: str, pretrained_: bool):
     print(f'arch: {arch}, pretrained: {pretrained_}') 
@@ -147,19 +155,25 @@ def network(arch: str, pretrained_: bool):
         model = timm.create_model(arch, pretrained=pretrained_)
     else:
         raise ValueError(f"Model {model_name} not available.")
-        
-    if args.dataset == "cifar10":
-        print("modify output layers for cifar10...")
-        # for VGG-19
-        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=10)
-        
-    elif args.dataset == "cifar100":
-        print("modify output layers for cifar100...")
-        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=100)
-        
+
+    dataset_classes = {"cifar10": 10, "cifar100": 100}
+    n_classes = dataset_classes.get(args.dataset)
+    
+    if not n_classes:
+        raise ValueError(f"Unsupported dataset '{args.dataset}'")
+
+    if args.model == "vgg19": # for VGG-19
+        num_features = m.classifier[6].in_features
+        m.classifier[6] = nn.Linear(num_features, n_classes)      
+    elif args.model == "vit_large_patch16_224": # for ViT (vision transformer) 
+        num_features = model.head.in_features
+        model.head = nn.Linear(num_features, n_classes)        
+    elif args.model == "efficientnet_b7": # for efficientnet
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, n_classes)
     else:
         raise ValueError("undefined dataset")    
-
+        
     return model
 
 
