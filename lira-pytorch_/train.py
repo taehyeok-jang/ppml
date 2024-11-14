@@ -16,18 +16,19 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, random_split
 from torchvision import models, transforms
+import timm
 from torchvision.datasets import CIFAR10, CIFAR100
 from tqdm import tqdm
 
 from wide_resnet import WideResNet
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--lr", default=0.1, type=float)
+parser.add_argument("--model", default="resnet18", type=str)
+parser.add_argument("--dataset", default="", type=str)
 parser.add_argument("--epochs", default=1, type=int)
+parser.add_argument("--lr", default=0.1, type=float)
 parser.add_argument("--n_shadows", default=16, type=int)
 parser.add_argument("--shadow_id", default=1, type=int)
-parser.add_argument("--model", default="resnet18", type=str)
-parser.add_argument("--dataset", default="resnet18", type=str)
 parser.add_argument("--pkeep", default=0.5, type=float)
 parser.add_argument("--savedir", default="exp/cifar10", type=str)
 parser.add_argument("--debug", action="store_true")
@@ -52,20 +53,36 @@ def run():
         print(f"{arg}: {getattr(args, arg)}")
 
     # Dataset
-    train_transform = transforms.Compose(
-        [
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomCrop(32, padding=4),
+
+    if args.model == "vit_large_patch16_224":
+        train_transform = transforms.Compose([
+            transforms.Resize(224),
             transforms.ToTensor(),
-            transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]),
-        ]
-    )
-    test_transform = transforms.Compose(
-        [
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+        
+        test_transform = transforms.Compose([
+            transforms.Resize(224),
             transforms.ToTensor(),
-            transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]),
-        ]
-    )
+            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        ])
+    else: 
+        train_transform = transforms.Compose(
+            [
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomCrop(32, padding=4),
+                transforms.ToTensor(),
+                transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]),
+            ]
+        )
+        test_transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]),
+            ]
+        )
+
+    
     torch.manual_seed(seed)
     datadir = Path().home() / "dataset"
 
@@ -118,9 +135,8 @@ def run():
     m = network(args.model, pretrained_=True)
     m = m.to(DEVICE)
     print(m)
-    
-#     for param in m.features.parameters():
-#         param.requires_grad = False
+    # For efficient fine-tune, freeze some intermediate layers within model
+    m = freeze_interdemidate_layers(m, args.model)
     
     optim = torch.optim.SGD(m.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, T_max=args.epochs)
@@ -179,22 +195,59 @@ def network(arch: str, pretrained_: bool):
     elif arch in PYTORCH_IMAGE_MODELS:
         model = timm.create_model(arch, pretrained=pretrained_)
     else:
-        raise ValueError(f"Model {model_name} not available.")
+        raise ValueError(f"Model {arch} not available.")
 
-    if args.dataset == "cifar10":
-        print("modify output layers for cifar10...")
-        # for VGG-19
-        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=10)
-        
-    elif args.dataset == "cifar100":
-        print("modify output layers for cifar100...")
-        model.classifier[6] = torch.nn.Linear(in_features=4096, out_features=100)
-        
+    dataset_classes = {"cifar10": 10, "cifar100": 100}
+    n_classes = dataset_classes.get(args.dataset)
+    
+    if not n_classes:
+        raise ValueError(f"Unsupported dataset '{args.dataset}'")
+
+    if args.model == "vgg19": # for VGG-19
+        num_features = model.classifier[6].in_features
+        m.classifier[6] = nn.Linear(num_features, n_classes)      
+    elif args.model == "vit_large_patch16_224": # for ViT (vision transformer) 
+        num_features = model.head.in_features
+        model.head = nn.Linear(num_features, n_classes)        
+    elif args.model == "efficientnet_b7": # for efficientnet
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, 100)
     else:
         raise ValueError("undefined dataset")    
         
     return model
 
+    
+def freeze_interdemidate_layers(model, model_name):
+    """
+    Freeze specific layers of a model for efficient fine-tuning.
+    
+    Parameters:
+    - model (torch.nn.Module): The model to apply freezing to.
+    - model_name (str): The name of the model.
+    """
+    #if model_name == "vgg19":
+    #    print("Freezing VGG-19 intermediate layers...")
+    #    for param in model.features.parameters():
+    #        param.requires_grad = False
+    
+    if model_name == "vit_large_patch16_224":
+        print("Freezing ViT-Large intermediate layers...")
+        for name, param in model.named_parameters():
+            if "head" not in name:
+                param.requires_grad = False
+    
+    #elif model_name == "efficientnet_b7":
+    #    print("Freezing EfficientNet-B7 intermediate layers...")
+    #    for param in model.parameters():
+    #        param.requires_grad = False
+    #    for param in model.classifier[1].parameters():
+    #        param.requires_grad = True
+    
+    else:
+        print(f"Do not freeze layers for model: {model_name}")
+    
+    return model
         
 @torch.no_grad()
 def get_acc(model, dl):
