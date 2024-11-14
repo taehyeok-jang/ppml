@@ -12,11 +12,17 @@ Latency: evaluated in our own _model zoo_ profiling experiment
 
 # Results 
 
+**Baseline Model (from LiRA paper)**
+- ResNet:	92% test accuracy for half of CIFAR-10
+- Wide ResNet:	60% test accuracy for half of CIFAR-100
+
+========
+
 ## Online Attack
 
 | Model                                    | CIFAR-10 | CIFAR-100 |
 |------------------------------------------|----------|-----------|
-| vgg-19                                    | 0.6117   | 0.76      |
+| vgg-19                                    | 0.6117   | 0.7600      |
 | vit_large_patch16_224 (freeze intermediate layers) | 0.5164   | 0.6055    |
 | efficientnet_b7                           | 0.5949   | 0.7504    |
 | (baseline) ResNet                         | 0.638    |           |
@@ -47,9 +53,3 @@ Latency: evaluated in our own _model zoo_ profiling experiment
 | efficientnet_b7                           | 0.5566   | 0.7177    |
 | (baseline) ResNet                         | N/A      |           |
 | (baseline) Wide ResNet                    |          | N/A       |
-
-========
-
-**Baseline Model (from LiRA paper)**
-- ResNet:	92% test accuracy for half of CIFAR-10
-- Wide ResNet:	60% test accuracy for half of CIFAR-100
