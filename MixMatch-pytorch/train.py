@@ -5,6 +5,7 @@ import os
 import shutil
 import time
 import random
+from pathlib import Path
 
 import numpy as np
 
@@ -17,21 +18,23 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 import torch.nn.functional as F
 
-import models.wideresnet as models
+import models.wideresnet as wrsnt
+import models.arch as models
+
 import dataset.cifar10 as dataset
 from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
 from tensorboardX import SummaryWriter
 
 parser = argparse.ArgumentParser(description='PyTorch MixMatch Training')
 # Optimization options
+
+parser.add_argument("--model", default="resnet18", type=str, metavar='N',
+                    help='an adversary model that learns from labeled/unlabeled data')
 parser.add_argument('--epochs', default=1024, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('--batch-size', default=64, type=int, metavar='N',
-                    help='train batchsize')
-parser.add_argument('--lr', '--learning-rate', default=0.002, type=float,
-                    metavar='LR', help='initial learning rate')
+
 # Checkpoints
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
@@ -47,10 +50,21 @@ parser.add_argument('--train-iteration', type=int, default=1024,
                         help='Number of iteration per epoch')
 parser.add_argument('--out', default='result',
                         help='Directory to output the result')
+
+parser.add_argument('--debug', default=False, type=bool)
+
+# Searchable hyperparams 
+parser.add_argument('--batch-size', default=64, type=int, metavar='N',
+                    help='train batchsize')
+parser.add_argument('--lr', '--learning-rate', default=0.002, type=float,
+                    metavar='LR', help='initial learning rate')
 parser.add_argument('--alpha', default=0.75, type=float)
 parser.add_argument('--lambda-u', default=75, type=float)
+
 parser.add_argument('--T', default=0.5, type=float)
 parser.add_argument('--ema-decay', default=0.999, type=float)
+
+
 
 
 args = parser.parse_args()
@@ -75,6 +89,8 @@ def main():
 
     # Data
     print(f'==> Preparing cifar10')
+
+    # data augmentation; non-deterministic through RandomPadandCrop / RandomFlip.
     transform_train = transforms.Compose([
         dataset.RandomPadandCrop(32),
         dataset.RandomFlip(),
@@ -85,17 +101,29 @@ def main():
         dataset.ToTensor(),
     ])
 
-    train_labeled_set, train_unlabeled_set, val_set, test_set = dataset.get_cifar10('./data', args.n_labeled, transform_train=transform_train, transform_val=transform_val)
+    datadir = Path().home() / "dataset"
+
+    train_labeled_set, train_unlabeled_set, val_set, test_set = dataset.get_cifar10(datadir, args.n_labeled, transform_train=transform_train, transform_val=transform_val)
     labeled_trainloader = data.DataLoader(train_labeled_set, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
     unlabeled_trainloader = data.DataLoader(train_unlabeled_set, batch_size=args.batch_size, shuffle=True, num_workers=0, drop_last=True)
     val_loader = data.DataLoader(val_set, batch_size=args.batch_size, shuffle=False, num_workers=0)
     test_loader = data.DataLoader(test_set, batch_size=args.batch_size, shuffle=False, num_workers=0)
 
     # Model
-    print("==> creating WRN-28-2")
+    print('==> creating %s' % args.model)
 
     def create_model(ema=False):
-        model = models.WideResNet(num_classes=10)
+
+        if args.model == 'wide_resnet28_2': # default model
+            model = wrsnt.WideResNet(num_classes=10)
+        else: 
+            model = models.network(args.model, pretrained=True, n_classes=10)
+
+        # CHECK: initialize weights
+        # for m in model.modules():
+        #    if isinstance(m, torch.nn.Conv2d) or isinstance(m, torch.nn.Linear):
+        #        torch.nn.init.kaiming_normal_(m.weight)
+        
         model = model.cuda()
 
         if ema:
@@ -135,6 +163,7 @@ def main():
         logger = Logger(os.path.join(args.out, 'log.txt'), title=title)
         logger.set_names(['Train Loss', 'Train Loss X', 'Train Loss U',  'Valid Loss', 'Valid Acc.', 'Test Loss', 'Test Acc.'])
 
+    global writer
     writer = SummaryWriter(args.out)
     step = 0
     test_accs = []
@@ -200,16 +229,16 @@ def train(labeled_trainloader, unlabeled_trainloader, model, optimizer, ema_opti
     model.train()
     for batch_idx in range(args.train_iteration):
         try:
-            inputs_x, targets_x = labeled_train_iter.next()
+            inputs_x, targets_x = next(labeled_train_iter)
         except:
             labeled_train_iter = iter(labeled_trainloader)
-            inputs_x, targets_x = labeled_train_iter.next()
+            inputs_x, targets_x = next(labeled_train_iter)
 
         try:
-            (inputs_u, inputs_u2), _ = unlabeled_train_iter.next()
+            (inputs_u, inputs_u2), _ = next(unlabeled_train_iter) # two different augment(x)s;
         except:
             unlabeled_train_iter = iter(unlabeled_trainloader)
-            (inputs_u, inputs_u2), _ = unlabeled_train_iter.next()
+            (inputs_u, inputs_u2), _ = next(unlabeled_train_iter)
 
         # measure data loading time
         data_time.update(time.time() - end)
@@ -234,12 +263,11 @@ def train(labeled_trainloader, unlabeled_trainloader, model, optimizer, ema_opti
             targets_u = pt / pt.sum(dim=1, keepdim=True)
             targets_u = targets_u.detach()
 
-        # mixup
+        # mixup        
         all_inputs = torch.cat([inputs_x, inputs_u, inputs_u2], dim=0)
         all_targets = torch.cat([targets_x, targets_u, targets_u], dim=0)
 
         l = np.random.beta(args.alpha, args.alpha)
-
         l = max(l, 1-l)
 
         idx = torch.randperm(all_inputs.size(0))
@@ -263,6 +291,54 @@ def train(labeled_trainloader, unlabeled_trainloader, model, optimizer, ema_opti
         logits_x = logits[0]
         logits_u = torch.cat(logits[1:], dim=0)
 
+        if args.debug:
+            if batch_idx % 10 == 0:
+                print(f'batch_idx: %d ...' % batch_idx)
+                # print('logits_x', logits_x.shape)
+                # print(logits_x)
+                # print('mixed_target[:batch_size]', mixed_target[:batch_size])
+                
+                # print('logits_u', logits_u.shape)
+                # print(logits_u)
+                # print('mixed_target[batch_size:]', mixed_target[batch_size:])
+    
+                # print('checking intermediate auccracies...')
+
+                print("logits_x mean:", logits_x.mean().item(), "std:", logits_x.std().item())
+                print("logits_x sample:", logits_x[:5])
+                    
+                print("targets_x sample:", targets_x[:5])
+                print("Sum of one-hot vectors:", targets_x.sum(dim=1))
+
+                
+                print('for logits_x,')
+                _, _predicted_x = torch.max(logits_x, dim=1)  
+                _, _target_x = torch.max(mixed_target[:batch_size], dim=1) 
+                print('pred: ', _predicted_x)
+                print('trgt: ', _target_x)
+    
+                accuracy_x = (_predicted_x == _target_x).float().mean().item()
+                print('accuracy_x', accuracy_x)
+                writer.add_scalar('accuracy/logits_x', accuracy_x, epoch * args.train_iteration + batch_idx)
+    
+                
+                print('for logits_u,')
+                _, _predicted_u = torch.max(logits_u, dim=1)  
+                _, _target_u = torch.max(mixed_target[batch_size:], dim=1) 
+                print('pred: ', _predicted_u)
+                print('trgt: ', _target_u)
+    
+                accuracy_u = (_predicted_u == _target_u).float().mean().item()
+                print('accuracy_u', accuracy_u)
+                writer.add_scalar('accuracy/logits_u', accuracy_u, epoch * args.train_iteration + batch_idx)
+            
+
+        # if args.debug:
+            # print('Check NaN/Inf in predictions...')
+            # check_for_nans_in_predictions(logits_x)
+            # check_for_nans_in_predictions(logits_u)
+
+
         Lx, Lu, w = criterion(logits_x, mixed_target[:batch_size], logits_u, mixed_target[batch_size:], epoch+batch_idx/args.train_iteration)
 
         loss = Lx + w * Lu
@@ -276,6 +352,39 @@ def train(labeled_trainloader, unlabeled_trainloader, model, optimizer, ema_opti
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
+
+        ## CHECK: gradient clipping to avoid explosion / vanishing
+        if args.debug:
+            if batch_idx % 10 == 0:
+                print('Inspecting gradient...')
+                for name, param in model.named_parameters():
+                    if param.grad is not None:
+                        if torch.isnan(param.grad).any(): 
+                            print(f"NaN found in gradient for {name}, skipping logging...")
+                            continue
+                        if torch.isinf(param.grad).any():
+                            print(f"Inf found in gradient for {name}, skipping logging...")
+                            continue
+                            
+                        writer.add_histogram(f'gradients/{name}', param.grad, epoch * args.train_iteration + batch_idx)
+                        grad_norm = param.grad.data.norm(2).item()
+                        if grad_norm > 1.0:
+                            print(f"gradient norm of {name}: {grad_norm}")
+
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+        # if args.debug:
+            # print('Inspecting gradient...')
+            # for name, param in model.named_parameters():
+                # if param.grad is not None:
+                #    writer.add_histogram(f'gradients_clipped/{name}', param.grad, epoch * args.train_iteration + batch_idx)
+
+        
+        # if args.debug:
+            # print('Check NaN/Inf...')
+            # check_for_nans(model)  # Check NaN/Inf in model parameters
+            # check_for_nans_in_gradients(model)  # Check NaN/Inf in gradients
+        
         optimizer.step()
         ema_optimizer.step()
 
@@ -296,10 +405,33 @@ def train(labeled_trainloader, unlabeled_trainloader, model, optimizer, ema_opti
                     loss_u=losses_u.avg,
                     w=ws.avg,
                     )
+
+        if args.debug:
+            print('Training |{bar} {suffix}'.format(
+                bar='#' * (int(batch_idx / 32) + 1) + ' ' * (32 - (int(batch_idx / 32) + 1)),
+                suffix=bar.suffix,
+            ), end='\r')
+        
         bar.next()
     bar.finish()
 
     return (losses.avg, losses_x.avg, losses_u.avg,)
+
+def check_for_nans(model):
+    for name, param in model.named_parameters():
+        if torch.any(torch.isnan(param.data)) or torch.any(torch.isinf(param.data)):
+            print(f"NaN/Inf detected in {name}")
+
+def check_for_nans_in_predictions(logits):
+    if torch.any(torch.isnan(logits)) or torch.any(torch.isinf(logits)):
+        print(f"NaN/Inf detected in model predictions!")
+
+def check_for_nans_in_gradients(model):
+    for name, param in model.named_parameters():
+        if param.grad is not None:
+            if torch.any(torch.isnan(param.grad)) or torch.any(torch.isinf(param.grad)):
+                print(f"NaN/Inf detected in gradient of {name}")
+
 
 def validate(valloader, model, criterion, epoch, use_cuda, mode):
 
@@ -366,6 +498,14 @@ def linear_rampup(current, rampup_length=args.epochs):
 
 class SemiLoss(object):
     def __call__(self, outputs_x, targets_x, outputs_u, targets_u, epoch):
+
+        #if args.debug: 
+        #    print("outputs_x sample:", outputs_x[:5])
+        #    print("outputs_x mean:", outputs_x.mean().item(), "std:", outputs_x.std().item())
+        #    
+        #    print("targets_x sample:", targets_x[:5])
+        #    print("Sum of one-hot vectors:", targets_x.sum(dim=1))
+        
         probs_u = torch.softmax(outputs_u, dim=1)
 
         Lx = -torch.mean(torch.sum(F.log_softmax(outputs_x, dim=1) * targets_x, dim=1))
@@ -385,7 +525,7 @@ class WeightEMA(object):
         for param, ema_param in zip(self.params, self.ema_params):
             param.data.copy_(ema_param.data)
 
-    def step(self):
+    def step(self): # θ′t = αθ′t−1 + (1 − α)θ (+@; customized weight decay) 
         one_minus_alpha = 1.0 - self.alpha
         for param, ema_param in zip(self.params, self.ema_params):
             if ema_param.dtype==torch.float32:
