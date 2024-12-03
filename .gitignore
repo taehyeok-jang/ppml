@@ -4,3 +4,4 @@ lira-pytorch_/.ipynb_checkpoints
 MixMatch-pytorch/cifar10@*
 MixMatch-pytorch/cifar100@*
 MixMatch-pytorch/logs
+MixMatch-pytorch/data
