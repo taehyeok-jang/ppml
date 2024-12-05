@@ -1,3 +1,7 @@
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+__pycache__/
+**/__pycache__/
 lira-pytorch_/exp
 lira-pytorch_/logs
 lira-pytorch_/.ipynb_checkpoints
