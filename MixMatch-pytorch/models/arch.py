@@ -30,7 +30,6 @@ def network(arch: str, pretrained: bool, n_classes=None):
     else:
         raise ValueError(f"Model {arch} not available.")
     
-
     if arch == "vgg19": # for VGG-19
         num_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(num_features, n_classes)  
@@ -45,6 +44,8 @@ def network(arch: str, pretrained: bool, n_classes=None):
         model.classifier[1] = nn.Linear(in_features, n_classes)
     else:
         raise ValueError(f"Model {arch} not supported yet.")
+
+    freeze_interdemidate_layers(model, arch)
         
     return model
 

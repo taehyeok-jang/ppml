@@ -79,7 +79,10 @@ class RandomPadandCrop(object):
             self.output_size = output_size
 
     def __call__(self, x):
+        """
         x = pad(x, 4)
+        """
+        x = pad(x, 28)
 
         h, w = x.shape[1:]
         new_h, new_w = self.output_size
@@ -127,6 +130,16 @@ class ToTensor(object):
         x = torch.from_numpy(x)
         return x
 
+'''
+def apply_resize(data, size):
+    resized_data = []
+    for img in data:
+        pil_img = Image.fromarray(img) # convert numpy array to PIL.Image
+        resized_img = pil_img.resize(size, Image.BILINEAR) # resize w/ interpolation 
+        resized_data.append(np.array(resized_img)) # convert PIL.Image to numpy array 
+    return np.array(resized_data)
+'''
+
 class CIFAR10_labeled(torchvision.datasets.CIFAR10):
 
     def __init__(self, root, indexs=None, train=True,
@@ -138,7 +151,10 @@ class CIFAR10_labeled(torchvision.datasets.CIFAR10):
         if indexs is not None:
             self.data = self.data[indexs]
             self.targets = np.array(self.targets)[indexs]
-        self.data = transpose(normalize(self.data))
+
+        # let's transform later
+        # self.data = transpose(normalize(self.data))
+        self.data = self.data
 
     def __getitem__(self, index):
         """
