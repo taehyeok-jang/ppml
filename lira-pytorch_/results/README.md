@@ -16,6 +16,12 @@ Latency: evaluated in our own _model zoo_ profiling experiment
 - ResNet:	92% test accuracy for half of CIFAR-10
 - Wide ResNet:	60% test accuracy for half of CIFAR-100
 
+(
+WRN-28-1: 0.37 M, 
+WRN-28-2: 1.47 M,
+WRN-28-10: 36.5 M
+)
+
 ========
 
 ## Online Attack
