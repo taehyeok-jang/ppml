@@ -130,16 +130,6 @@ class ToTensor(object):
         x = torch.from_numpy(x)
         return x
 
-'''
-def apply_resize(data, size):
-    resized_data = []
-    for img in data:
-        pil_img = Image.fromarray(img) # convert numpy array to PIL.Image
-        resized_img = pil_img.resize(size, Image.BILINEAR) # resize w/ interpolation 
-        resized_data.append(np.array(resized_img)) # convert PIL.Image to numpy array 
-    return np.array(resized_data)
-'''
-
 class CIFAR10_labeled(torchvision.datasets.CIFAR10):
 
     def __init__(self, root, indexs=None, train=True,

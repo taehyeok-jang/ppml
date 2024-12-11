@@ -58,23 +58,22 @@ def freeze_interdemidate_layers(model, arch: str):
     - model (torch.nn.Module): The model to apply freezing to.
     - arch (str): The name of the model.
     """
-    #if arch == "vgg19":
-    #    print("Freezing VGG-19 intermediate layers...")
-    #    for param in model.features.parameters():
+    # if arch == "vgg19":
+    #   print("Freezing VGG-19 intermediate layers...")
+    #   for param in model.features.parameters():
+    #       param.requires_grad = False
+    # elif arch == "efficientnet_b7":
+    #    print("Freezing EfficientNet-B7 intermediate layers...")
+    #    for param in model.parameters():
     #        param.requires_grad = False
+    #    for param in model.classifier[1].parameters():
+    #        param.requires_grad = True
     
     if arch == "vit_large_patch16_224":
         print("Freezing ViT-Large intermediate layers...")
         for name, param in model.named_parameters():
             if "head" not in name:
                 param.requires_grad = False
-    
-    #elif arch == "efficientnet_b7":
-    #    print("Freezing EfficientNet-B7 intermediate layers...")
-    #    for param in model.parameters():
-    #        param.requires_grad = False
-    #    for param in model.classifier[1].parameters():
-    #        param.requires_grad = True
     
     else:
         print(f"Do not freeze layers for model: {arch}")

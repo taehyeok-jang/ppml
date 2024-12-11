@@ -1,0 +1,2 @@
+Train Loss	Train Loss X	Train Loss U	Valid Loss	Valid Acc.	Test Loss	Test Acc.	
+0.677776	0.677776	0.000000	0.000000	0.000000	0.163532	95.600000	
