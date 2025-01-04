@@ -11,11 +11,11 @@ pip install transformers requests torch
 ## RUNNING THE CODE
 
 ```script
-# ray cluster
+### ray cluster
 ray start --head 
 # ray stop 
 
-# ray serve 
+### ray serve 
 serve build image_classifier:app text_translator:app -o config.yaml
 serve deploy config.yaml
 
