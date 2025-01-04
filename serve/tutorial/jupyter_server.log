@@ -1,0 +1,34 @@
+nohup: ignoring input
+[I 2025-01-03 22:42:34.285 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2025-01-03 22:42:34.291 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[I 2025-01-03 22:42:34.298 ServerApp] jupyterlab | extension was successfully linked.
+[I 2025-01-03 22:42:34.304 ServerApp] notebook | extension was successfully linked.
+[I 2025-01-03 22:42:34.623 ServerApp] notebook_shim | extension was successfully linked.
+[I 2025-01-03 22:42:34.783 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2025-01-03 22:42:34.784 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2025-01-03 22:42:34.785 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2025-01-03 22:42:34.792 LabApp] JupyterLab extension loaded from /home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/jupyterlab
+[I 2025-01-03 22:42:34.792 LabApp] JupyterLab application directory is /home/dsanyal7/miniconda3/envs/ppml/share/jupyter/lab
+[I 2025-01-03 22:42:34.793 LabApp] Extension Manager is 'pypi'.
+[I 2025-01-03 22:42:34.801 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2025-01-03 22:42:34.807 ServerApp] notebook | extension was successfully loaded.
+[I 2025-01-03 22:42:34.808 ServerApp] Serving notebooks from local directory: /home/dsanyal7/tjang31/ppml/serve/tutorial
+[I 2025-01-03 22:42:34.808 ServerApp] Jupyter Server 2.14.2 is running at:
+[I 2025-01-03 22:42:34.808 ServerApp] http://localhost:8080/tree?token=16a4161658e3e7dd7189c918dfb25828386f9734f71ac8d9
+[I 2025-01-03 22:42:34.808 ServerApp]     http://127.0.0.1:8080/tree?token=16a4161658e3e7dd7189c918dfb25828386f9734f71ac8d9
+[I 2025-01-03 22:42:34.808 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2025-01-03 22:42:34.813 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///home/dsanyal7/.local/share/jupyter/runtime/jpserver-108352-open.html
+    Or copy and paste one of these URLs:
+        http://localhost:8080/tree?token=16a4161658e3e7dd7189c918dfb25828386f9734f71ac8d9
+        http://127.0.0.1:8080/tree?token=16a4161658e3e7dd7189c918dfb25828386f9734f71ac8d9
+[I 2025-01-03 22:42:34.839 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[I 2025-01-03 22:47:36.926 ServerApp] 302 GET / (@::1) 0.68ms
+[I 2025-01-03 22:47:36.958 JupyterNotebookApp] 302 GET /tree? (@::1) 1.05ms
+[W 2025-01-03 22:48:17.945 ServerApp] 401 POST /login?next=%2Ftree%3F (@::1) 2.01ms referer=http://localhost:8080/login?next=%2Ftree%3F
+[W 2025-01-03 22:48:19.339 ServerApp] 401 POST /login?next=%2Ftree%3F (@::1) 1.70ms referer=http://localhost:8080/login?next=%2Ftree%3F
+[I 2025-01-03 22:48:26.796 ServerApp] 302 GET / (@::1) 0.62ms
+[I 2025-01-03 22:48:26.826 JupyterNotebookApp] 302 GET /tree? (@::1) 0.73ms
+[W 2025-01-03 22:48:28.535 ServerApp] 401 POST /login?next=%2Ftree%3F (@::1) 1.60ms referer=http://localhost:8080/login?next=%2Ftree%3F
