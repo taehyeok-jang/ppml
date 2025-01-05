@@ -225,3 +225,33 @@ applications:
   args: 
     model_name: vgg19_bn
     dataset: cifar10
+
+- name: vit_small_patch16_384
+  route_prefix: /v2/vit_small_patch16_384
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vit_small_patch16_384
+    dataset: cifar10
+
+- name: vit_base_patch16_384
+  route_prefix: /v2/vit_base_patch16_384
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vit_base_patch16_384
+    dataset: cifar10
+
+- name: vit_large_patch16_384
+  route_prefix: /v2/vit_large_patch16_384
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vit_large_patch16_384
+    dataset: cifar10

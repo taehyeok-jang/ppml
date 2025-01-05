@@ -39,11 +39,13 @@ SUPPORTED_MODELS = [
  'vgg13_bn',
  'vgg16_bn',
  'vgg19_bn',
-#  'vit_b16',
-#  'vit_b32',
-#  'vit_h14',
-#  'vit_l16',
-#  'vit_l32'
+# VISION_TRANSFORMERS
+ 'vit_small_patch16_384',
+ 'vit_base_patch16_384',
+ 'vit_large_patch16_384',
+# CONVNEXTS
+ 'convnext-tiny',
+ 'convnext-base',
  ]
 
 app = FastAPI()

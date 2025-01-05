@@ -2,6 +2,9 @@
 **/.ipynb_checkpoints/
 __pycache__/
 **/__pycache__/
+*.t7
+*.pth
+*.bin
 lira-pytorch_/exp
 lira-pytorch_/logs
 lira-pytorch_/.ipynb_checkpoints
@@ -12,3 +15,5 @@ MixMatch-pytorch/data
 MixMatch-pytorch/experiments
 MixMatch-pytorch/experiments/mzoo
 serve/metrics/*
+serve/logs
+serve/data

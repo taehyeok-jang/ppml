@@ -1,0 +1,110 @@
+stty: 'standard input': Inappropriate ioctl for device
+wandb: Currently logged in as: henrytang-dev (henrytang-dev-georgia-institute-of-technology). Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.19.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.16.6
+wandb: Run data is saved locally in /home/dsanyal7/tjang31/ppml/serve/model_repos/vision-transformers-cifar10/wandb/run-20250107_001012-dwrch4su
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run vit_small_patch16_384_lr0.0001
+wandb: ⭐️ View project at https://wandb.ai/henrytang-dev-georgia-institute-of-technology/cifar100-challange
+wandb: 🚀 View run at https://wandb.ai/henrytang-dev-georgia-institute-of-technology/cifar100-challange/runs/dwrch4su
+==> Hyperparameters:
+Model: vit_small_patch16_384
+GPU: cuda_0
+Learning Rate: 0.0001
+Optimizer: adam
+Batch Size: 128
+Number of Epochs: 10
+Patch Size (ViT): 4
+Dimension Head: 64
+ConvKernel (ConvMixer): 8
+Data Augmentation Enabled: False
+Mixed Precision Training (AMP): True
+Device: cuda
+Network Architecture: vit_small_patch16_384
+Data Parallel Enabled: False
+Image Size: 32
+==================================================
+==> Preparing data..
+Downloading https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz to ./data/cifar-100-python.tar.gz
+  0%|          | 0.00/169M [00:00<?, ?B/s]  0%|          | 131k/169M [00:00<02:09, 1.30MB/s]  1%|          | 1.02M/169M [00:00<00:29, 5.72MB/s]  3%|▎         | 4.62M/169M [00:00<00:08, 19.5MB/s]  5%|▍         | 8.19M/169M [00:00<00:06, 25.7MB/s]  7%|▋         | 11.7M/169M [00:00<00:05, 29.2MB/s]  9%|▉         | 15.4M/169M [00:00<00:04, 31.7MB/s] 11%|█         | 18.9M/169M [00:00<00:04, 32.6MB/s] 13%|█▎        | 22.5M/169M [00:00<00:04, 33.5MB/s] 16%|█▌        | 26.2M/169M [00:00<00:04, 34.6MB/s] 18%|█▊        | 29.8M/169M [00:01<00:03, 34.9MB/s] 20%|█▉        | 33.4M/169M [00:01<00:03, 35.0MB/s] 22%|██▏       | 36.9M/169M [00:01<00:03, 35.1MB/s] 24%|██▍       | 40.5M/169M [00:01<00:03, 35.3MB/s] 26%|██▌       | 44.0M/169M [00:01<00:03, 35.2MB/s] 28%|██▊       | 47.6M/169M [00:01<00:03, 35.3MB/s] 30%|███       | 51.2M/169M [00:01<00:03, 35.4MB/s] 32%|███▏      | 54.7M/169M [00:01<00:03, 35.2MB/s] 34%|███▍      | 58.2M/169M [00:01<00:03, 35.2MB/s] 37%|███▋      | 61.8M/169M [00:01<00:03, 35.2MB/s] 39%|███▊      | 65.3M/169M [00:02<00:02, 35.2MB/s] 41%|████      | 68.8M/169M [00:02<00:02, 35.1MB/s] 43%|████▎     | 72.4M/169M [00:02<00:02, 35.0MB/s] 45%|████▍     | 76.0M/169M [00:02<00:02, 35.3MB/s] 47%|████▋     | 80.0M/169M [00:02<00:02, 36.7MB/s] 51%|█████     | 85.6M/169M [00:02<00:01, 42.3MB/s] 55%|█████▍    | 92.1M/169M [00:02<00:01, 49.1MB/s] 59%|█████▉    | 99.6M/169M [00:02<00:01, 56.7MB/s] 64%|██████▍   | 108M/169M [00:02<00:00, 65.2MB/s]  69%|██████▉   | 117M/169M [00:02<00:00, 72.5MB/s] 74%|███████▍  | 126M/169M [00:03<00:00, 76.7MB/s] 80%|███████▉  | 135M/169M [00:03<00:00, 80.6MB/s] 85%|████████▌ | 144M/169M [00:03<00:00, 84.1MB/s] 91%|█████████ | 153M/169M [00:03<00:00, 84.7MB/s] 96%|█████████▌| 162M/169M [00:03<00:00, 86.3MB/s]100%|██████████| 169M/169M [00:03<00:00, 48.2MB/s]
+Extracting ./data/cifar-100-python.tar.gz to ./data
+Files already downloaded and verified
+==> Building model..
+cuda
+train_cifar100.py:169: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+
+Epoch: 0
+train_cifar100.py:179: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=use_amp):
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [2,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [3,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [4,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [6,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [7,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [8,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [10,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [11,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [12,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [13,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [15,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [16,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [17,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [18,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [19,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [20,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [21,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [22,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [23,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [24,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [25,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [26,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [28,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [29,0,0] Assertion `t >= 0 && t < n_classes` failed.
+/opt/conda/conda-bld/pytorch_1724789115405/work/aten/src/ATen/native/cuda/Loss.cu:250: nll_loss_forward_reduce_cuda_kernel_2d: block: [0,0,0], thread: [30,0,0] Assertion `t >= 0 && t < n_classes` failed.
+Traceback (most recent call last):
+  File "train_cifar100.py", line 247, in <module>
+    trainloss = train(epoch)
+  File "train_cifar100.py", line 182, in train
+    scaler.scale(loss).backward()
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/torch/amp/grad_scaler.py", line 208, in scale
+    self._lazy_init_scale_growth_tracker(outputs.device)
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/torch/amp/grad_scaler.py", line 168, in _lazy_init_scale_growth_tracker
+    self._scale = torch.full((), self._init_scale, dtype=torch.float32, device=dev)
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+Traceback (most recent call last):
+  File "train_cifar100.py", line 247, in <module>
+    trainloss = train(epoch)
+  File "train_cifar100.py", line 182, in train
+    scaler.scale(loss).backward()
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/torch/amp/grad_scaler.py", line 208, in scale
+    self._lazy_init_scale_growth_tracker(outputs.device)
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/torch/amp/grad_scaler.py", line 168, in _lazy_init_scale_growth_tracker
+    self._scale = torch.full((), self._init_scale, dtype=torch.float32, device=dev)
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+wandb: - 0.012 MB of 0.012 MB uploadedwandb: \ 0.012 MB of 0.012 MB uploadedwandb: | 0.012 MB of 0.012 MB uploadedwandb: / 0.012 MB of 0.012 MB uploadedwandb: - 0.018 MB of 0.038 MB uploadedwandb: \ 0.038 MB of 0.038 MB uploadedwandb: 🚀 View run vit_small_patch16_384_lr0.0001 at: https://wandb.ai/henrytang-dev-georgia-institute-of-technology/cifar100-challange/runs/dwrch4su
+wandb: ⭐️ View project at: https://wandb.ai/henrytang-dev-georgia-institute-of-technology/cifar100-challange
+wandb: Synced 6 W&B file(s), 0 media file(s), 2 artifact file(s) and 0 other file(s)
+wandb: Find logs at: ./wandb/run-20250107_001012-dwrch4su/logs
+Error in atexit._run_exitfuncs:
+Traceback (most recent call last):
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/wandb/sdk/wandb_manager.py", line 176, in _teardown
+    result = self._service.join()
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/site-packages/wandb/sdk/service/service.py", line 263, in join
+    ret = self._internal_proc.wait()
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/subprocess.py", line 1079, in wait
+    return self._wait(timeout=timeout)
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/subprocess.py", line 1804, in _wait
+    (pid, sts) = self._try_wait(0)
+  File "/home/dsanyal7/miniconda3/envs/ppml/lib/python3.8/subprocess.py", line 1762, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+KeyboardInterrupt
