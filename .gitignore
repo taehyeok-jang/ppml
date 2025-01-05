@@ -9,5 +9,6 @@ MixMatch-pytorch/cifar10@*
 MixMatch-pytorch/cifar100@*
 MixMatch-pytorch/logs
 MixMatch-pytorch/data
+MixMatch-pytorch/experiments
+MixMatch-pytorch/experiments/mzoo
 serve/metrics/*
-serve/metrics/data/*
