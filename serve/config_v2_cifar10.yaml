@@ -1,0 +1,227 @@
+# This file was generated using the `serve build` command on Ray v2.10.0.
+
+### DOCS 
+# https://docs.ray.io/en/latest/serve/resource-allocation.html
+# https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resource-requirements
+
+
+proxy_location: EveryNode
+
+http_options:
+  host: 0.0.0.0
+  port: 8000
+
+grpc_options:
+  port: 9000
+  grpc_servicer_functions: []
+
+logging_config:
+  encoding: TEXT
+  log_level: INFO
+  logs_dir: null
+  enable_access_log: true
+
+common_gpu_config: &common_gpu_config
+  ray_actor_options:
+    num_gpus: 0.15
+    runtime_env:
+        CUDA_VISIBLE_DEVICES: "0,1,2,3"
+
+applications:
+### router 
+- name: router
+  route_prefix: /mz
+  import_path: router:builder
+  deployments:
+  - name: Router
+
+### Models in the model zoo
+- name: mobilenetv2_x0_5
+  route_prefix: /v2/mobilenetv2_x0_5
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: mobilenetv2_x0_5
+    dataset: cifar10
+
+- name: mobilenetv2_x0_75
+  route_prefix: /v2/mobilenetv2_x0_75
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: mobilenetv2_x0_75
+    dataset: cifar10
+
+- name: mobilenetv2_x1_0
+  route_prefix: /v2/mobilenetv2_x1_0
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: mobilenetv2_x1_0
+    dataset: cifar10
+
+- name: mobilenetv2_x1_4
+  route_prefix: /v2/mobilenetv2_x1_4
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: mobilenetv2_x1_4
+    dataset: cifar10
+
+- name: repvgg_a0
+  route_prefix: /v2/repvgg_a0
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: repvgg_a0
+    dataset: cifar10
+
+- name: repvgg_a1
+  route_prefix: /v2/repvgg_a1
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: repvgg_a1
+    dataset: cifar10
+
+- name: repvgg_a2
+  route_prefix: /v2/repvgg_a2
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: repvgg_a2
+    dataset: cifar10
+
+- name: resnet20
+  route_prefix: /v2/resnet20
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: resnet20
+    dataset: cifar10
+
+- name: resnet32
+  route_prefix: /v2/resnet32
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: resnet32
+    dataset: cifar10
+
+- name: resnet44
+  route_prefix: /v2/resnet44
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: resnet44
+    dataset: cifar10
+
+- name: resnet56
+  route_prefix: /v2/resnet56
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: resnet56
+    dataset: cifar10
+
+- name: shufflenetv2_x0_5
+  route_prefix: /v2/shufflenetv2_x0_5
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: shufflenetv2_x0_5
+    dataset: cifar10
+
+- name: shufflenetv2_x1_0
+  route_prefix: /v2/shufflenetv2_x1_0
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: shufflenetv2_x1_0
+    dataset: cifar10
+
+- name: shufflenetv2_x1_5
+  route_prefix: /v2/shufflenetv2_x1_5
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: shufflenetv2_x1_5
+    dataset: cifar10
+
+- name: shufflenetv2_x2_0
+  route_prefix: /v2/shufflenetv2_x2_0
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: shufflenetv2_x2_0
+    dataset: cifar10
+
+- name: vgg11_bn
+  route_prefix: /v2/vgg11_bn
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vgg11_bn
+    dataset: cifar10
+
+- name: vgg13_bn
+  route_prefix: /v2/vgg13_bn
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vgg13_bn
+    dataset: cifar10
+
+- name: vgg16_bn
+  route_prefix: /v2/vgg16_bn
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vgg16_bn
+    dataset: cifar10
+
+- name: vgg19_bn
+  route_prefix: /v2/vgg19_bn
+  import_path: model:app_builder
+  deployments:
+  - name: ModelServer
+    <<: *common_gpu_config
+  args: 
+    model_name: vgg19_bn
+    dataset: cifar10

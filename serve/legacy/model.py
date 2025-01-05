@@ -13,49 +13,25 @@ from PIL import Image
 from typing import Dict
 from io import BytesIO
 
-# https://github.com/chenyaofo/pytorch-cifar-models
-SUPPORTED_MODELS = [
- 'mobilenetv2_x0_5',
- 'mobilenetv2_x0_75',
- 'mobilenetv2_x1_0',
- 'mobilenetv2_x1_4',
- 'repvgg_a0',
- 'repvgg_a1',
- 'repvgg_a2',
- 'resnet20',
- 'resnet32',
- 'resnet44',
- 'resnet56',
- 'shufflenetv2_x0_5',
- 'shufflenetv2_x1_0',
- 'shufflenetv2_x1_5',
- 'shufflenetv2_x2_0',
- 'vgg11_bn',
- 'vgg13_bn',
- 'vgg16_bn',
- 'vgg19_bn',
-#  'vit_b16',
-#  'vit_b32',
-#  'vit_h14',
-#  'vit_l16',
-#  'vit_l32'
- ]
-
-MODEL_REPO_UPSTREAM = "chenyaofo/pytorch-cifar-models"
 
 app = FastAPI()
 
-@serve.deployment
+# https://docs.ray.io/en/latest/serve/resource-allocation.html
+# https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#resource-requirements
+@serve.deployment(
+    ray_actor_options={
+        "num_gpus": 1,  # Allocate 1 GPU per replica
+        "runtime_env": {"CUDA_VISIBLE_DEVICES": "0,1,2,3"}  # Restrict to GPU 0-3
+    }
+)
 @serve.ingress(app)
 class ModelServer:
-  def __init__(self, model_name: str, dataset: str):
+  def __init__(self, model_name: str):
     self.count = 0
     
     self.model_name = model_name
-    self.dataset = dataset
-    print(f"🚀 Loading model: {model_name}, fine-tuned for {dataset}")
-
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"🚀 Loading model: {model_name}")
     if self.device.type == "cuda":
       gpu_index = torch.cuda.current_device()  
       gpu_name = torch.cuda.get_device_name(gpu_index)
@@ -64,20 +40,24 @@ class ModelServer:
     self.model = self.load_model(model_name).to(self.device)
 
     self.preprocessor = transforms.Compose([
-        transforms.Resize(32),
-        transforms.CenterCrop(32),
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Lambda(lambda t: t[:3, ...]),  # remove the alpha channel
         transforms.Normalize(
-            mean=[0.4914, 0.4822, 0.4465], std=[0.2471, 0.2435, 0.2616]),
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
   def load_model(self, model_name: str):
-    if model_name in SUPPORTED_MODELS:
-        model_id = f'{self.dataset}_{model_name}'
-        model = torch.hub.load(MODEL_REPO_UPSTREAM, model_id, pretrained=True)
+    if model_name in ['resnet18', 'resnet50', 'resnet101', 'vgg16', 'vgg19', 'densenet121',
+                      'densenet201', 'mobilenet_v2', 'inception_v3', 'efficientnet_b0',
+                      'efficientnet_b7', 'squeezenet1_0', 'alexnet', 'googlenet', 'shufflenet_v2_x1_0']:
+        model = models.__dict__[model_name](pretrained=True)
+    elif model_name in ['vit_base_patch16_224', 'vit_large_patch16_224', 'deit_base_patch16_224',
+                        'convnext_base', 'convnext_large']:
+        model = timm.create_model(model_name, pretrained=True)
     else:
-        raise ValueError(f"Model {model_id} not available.")
+        raise ValueError(f"Model {model_name} not available.")
     
     model.eval()
     return model
@@ -108,8 +88,7 @@ def app_builder(args: Dict[str, str]) -> Application:
     """
     Build and return the Ray Serve Application based on arguments from `config.yaml`.
     """
-    model_name = args.get("model_name", "resnet20")
-    dataset = args.get("dataset", "cifar10")
-    print(f"Building deployment with model_name={model_name}, dataset={dataset}")
+    model_name = args.get("model_name", "resnet18")
+    print(f"Building deployment with model_name={model_name}")
 
-    return ModelServer.bind(model_name, dataset)
+    return ModelServer.bind(model_name)

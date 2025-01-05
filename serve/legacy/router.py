@@ -18,34 +18,6 @@ curl -X POST "http://127.0.0.1:8000/classify_" \
 -F "file=@./grey-British-Shorthair-compressed.jpg"
 '''
 
-# https://github.com/chenyaofo/pytorch-cifar-models
-SUPPORTED_MODELS = [
- 'mobilenetv2_x0_5',
- 'mobilenetv2_x0_75',
- 'mobilenetv2_x1_0',
- 'mobilenetv2_x1_4',
- 'repvgg_a0',
- 'repvgg_a1',
- 'repvgg_a2',
- 'resnet20',
- 'resnet32',
- 'resnet44',
- 'resnet56',
- 'shufflenetv2_x0_5',
- 'shufflenetv2_x1_0',
- 'shufflenetv2_x1_5',
- 'shufflenetv2_x2_0',
- 'vgg11_bn',
- 'vgg13_bn',
- 'vgg16_bn',
- 'vgg19_bn',
-#  'vit_b16',
-#  'vit_b32',
-#  'vit_h14',
-#  'vit_l16',
-#  'vit_l32'
- ]
-
 app = FastAPI()
 
 @serve.deployment
@@ -55,7 +27,15 @@ class Router:
     self.count = 0
 
   def validate(self, model_name: str):
-    if model_name in SUPPORTED_MODELS:
+    if model_name in [
+       # torchvision
+       'resnet18', 'resnet50', 'resnet101', 'vgg16', 'vgg19', 'densenet121',
+       'densenet201', 'mobilenet_v2', 'inception_v3', 'efficientnet_b0',
+       'efficientnet_b7', 'squeezenet1_0', 'alexnet', 'googlenet', 'shufflenet_v2_x1_0'
+       # timm 
+       'vit_base_patch16_224', 'vit_large_patch16_224', 'deit_base_patch16_224',
+       'convnext_base', 'convnext_large'
+       ]:
         pass
     else:
         raise ValueError(f"Model {model_name} not available.")
@@ -64,7 +44,7 @@ class Router:
     """
     Route the classification request to the appropriate model deployment.
     """
-    model_endpoint = f"http://localhost:8000/v2/{model_name}/classify_"
+    model_endpoint = f"http://localhost:8000/{model_name}/classify_"
     try:
         files = {"file": ("image.jpg", BytesIO(image_payload_bytes), "image/jpeg")}
         response = requests.post(model_endpoint, files=files)

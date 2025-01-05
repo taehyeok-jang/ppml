@@ -17,6 +17,14 @@ logging_config:
   enable_access_log: true
 
 applications:
+### router 
+- name: router
+  route_prefix: /mz
+  import_path: router:builder
+  deployments:
+  - name: Router
+
+### models in the model zoo 
 - name: vgg19
   route_prefix: /vgg19
   import_path: model:app_builder
@@ -40,4 +48,3 @@ applications:
   - name: ModelServer
   args: 
     model_name: efficientnet_b7
-
