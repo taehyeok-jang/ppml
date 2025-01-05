@@ -2,7 +2,7 @@
 
 # Parameters
 gpus=(0 1 2 3 4 5 6 7)  # Available GPUs
-n_labeled=(40000 10000)
+n_labeled=(4000)
 lrs=(0.01 0.005 0.002 0.001)
 
 # Create logs directory if it doesn't exist
@@ -19,7 +19,7 @@ for labeled in "${n_labeled[@]}"; do
     gpu=${gpus[$gpu_index]}
     
     echo "Starting training on GPU $gpu with n_labeled=$labeled and lr=$lr"
-    python -u train_cifar100-sup.py \
+    python -u train_cifar100-semi.py \
     --gpu "$gpu" --model vgg19 --dataset cifar100 \
     --n-labeled "$labeled" --lr "$lr" \
     > logs/vgg19_only/cifar100@"$labeled"_lr_"$lr".log 2>&1 &

@@ -10,3 +10,4 @@ MixMatch-pytorch/cifar100@*
 MixMatch-pytorch/logs
 MixMatch-pytorch/data
 serve/metrics/*
+serve/metrics/data/*
