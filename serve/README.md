@@ -24,7 +24,7 @@ serve deploy config.yaml
 ## TODO  
 
 priority: 
-    - [] monitor metrics (e.g. num of requests to each model, system resource usages), 
+    - [x] monitor metrics (e.g. num of requests to each model, system resource usages) => let's use prometheus,  since grafana installation is restrited due to limited authorization. 
     - [] CIFAR-10
     - [] this logic will be replaced by pareto-front profiled set, combined with defense
     - [] batch inference (e.g. 8+ images per request)
