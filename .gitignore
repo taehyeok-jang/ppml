@@ -16,4 +16,5 @@ MixMatch-pytorch/experiments
 MixMatch-pytorch/experiments/mzoo
 serve/metrics/*
 serve/logs
+serve/*/logs/
 serve/data

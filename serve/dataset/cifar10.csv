@@ -21,3 +21,6 @@ vgg19_bn,94.3,18.17
 vit_small_patch16_384,98.02,35.86
 vit_base_patch16_384,98.32,36.27
 vit_large_patch16_384,98.38,67.79
+convnext_tiny,98.06,40.81
+convnext_base,98.62,71.79
+convnext_large,98.96,77.57

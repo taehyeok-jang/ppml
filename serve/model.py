@@ -2,9 +2,12 @@ import ray
 from ray import serve
 from ray.serve import Application
 from fastapi import FastAPI, UploadFile, File
+from typing import List, Dict
 
 import torch
 import torch.nn as nn
+import numpy as np
+
 from torchvision import transforms
 import torchvision.models as models
 import timm
@@ -43,8 +46,9 @@ VISION_TRANSFORMERS = [
  'vit_large_patch16_384',
 ]
 CONVNEXTS = [
- 'convnext-tiny',
- 'convnext-base',
+ 'convnext_tiny',
+ 'convnext_base',
+ 'convnext_large',
 ]
 
 V1_MODELS_UPSTREAM = "chenyaofo/pytorch-cifar-models"
@@ -93,7 +97,13 @@ class ModelServer:
         state_dict = torch.load(checkpoint_path, map_location='cpu')
 
         model = timm.create_model(model_name, pretrained=False)
-        model.head = nn.Linear(model.head.in_features, self.n_classes)
+        if model_name.startswith("vit"):
+            model.head = nn.Linear(model.head.in_features, self.n_classes)
+        elif model_name.startswith("convnext"):
+            model.head.fc = nn.Linear(model.head.fc.in_features, self.n_classes)
+        else: 
+            raise ValueError(f"Unsupported network: {model_name}")
+        
         model.load_state_dict(state_dict)
     else:
         raise ValueError(f"Model {model_id} not available.")
@@ -102,7 +112,6 @@ class ModelServer:
     return model
   
   def get_preprocessor(self, model_name:str, dataset: str):
-     
     if dataset == "cifar10":
         _mean = cifar10_mean
         _std = cifar10_std
@@ -130,6 +139,10 @@ class ModelServer:
         raise ValueError(f"Model {model_name} not available.")
     
     return preprocessor
+
+  @app.get("/")
+  def get(self):
+      return f"Welcome to the {self.model_name} model serving system."
     
   def classify(self, image_payload_bytes):
     pil_image = Image.open(BytesIO(image_payload_bytes))
@@ -140,17 +153,59 @@ class ModelServer:
         ).to(self.device)
 
     with torch.no_grad():
-        output_tensor = self.model(input_tensor)
-    return {"model": self.model_name, "class_index": int(torch.argmax(output_tensor[0]))}
+        output_tensor = self.model(input_tensor).cpu()
+        pred = torch.softmax(output_tensor, dim=1).squeeze(0).numpy()
+    
+    class_index = np.argmax(pred)
+    confidence = pred[class_index]
 
-  @app.get("/")
-  def get(self):
-      return f"Welcome to the {self.model_name} model serving system."
-
+    return {
+       "model": self.model_name, 
+       "class_index": int(class_index),
+       "confidence": float(confidence),
+       "probs": pred.tolist(),
+       "outputs": output_tensor.tolist(),
+       }
+  
   @app.post("/classify_")
   async def classify_(self, file: UploadFile = File(...)):
     image_bytes = await file.read()
     return self.classify(image_bytes)
+  
+  def classify_batch(self, image_payloads: List[bytes]) -> List[Dict]:
+    """
+    Perform batch classification on multiple images.
+    """
+    pil_images = [Image.open(BytesIO(img)) for img in image_payloads]
+    input_tensors = torch.cat(
+        [self.preprocessor(img).unsqueeze(0) for img in pil_images]
+    ).to(self.device)
+
+    with torch.no_grad():
+        output_tensors = self.model(input_tensors).cpu()
+        predictions = torch.softmax(output_tensors, dim=1).numpy()
+    
+    results = []
+    for i, pred in enumerate(predictions):
+        class_index = np.argmax(pred)
+        confidence = pred[class_index]
+        results.append({
+            "model": self.model_name,
+            "class_index": int(class_index),
+            "confidence": float(confidence),
+            "probs": pred.tolist(),
+            "outputs": output_tensors[i].tolist(),
+        })
+    
+    return results
+
+  @app.post("/b_classify_")
+  async def batch_classify_(self, files: List[UploadFile] = File(...)):
+    """
+    API to classify a batch of images.
+    """
+    image_payloads = [await file.read() for file in files]
+    return self.classify_batch(image_payloads)
 
 def app_builder(args: Dict[str, str]) -> Application:
     """

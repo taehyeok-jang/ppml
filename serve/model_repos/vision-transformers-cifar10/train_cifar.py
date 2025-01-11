@@ -33,6 +33,8 @@ from randomaug import RandAugment
 from models.vit import ViT
 from models.convmixer import ConvMixer
 
+from tensorboardX import SummaryWriter
+
 # parsers
 parser = argparse.ArgumentParser(description='PyTorch CIFAR Training')
 parser.add_argument('--dataset', default="none", help="you must specify either cifar10 or cifar100")
@@ -55,6 +57,7 @@ parser.add_argument('--gpu', default=0, type=int, help="id(s) for CUDA_VISIBLE_D
 
 
 args = parser.parse_args()
+
 
 if args.dataset == "none":
     print("Error: --dataset argument must be specified. Use --dataset <dataset_name>")
@@ -168,8 +171,14 @@ elif args.dataset == "cifar100":
 else: 
     raise ValueError(f"Unsupported dataset: {args.dataset}")
 
+# 
 net = timm.create_model(args.net, pretrained=True)
-net.head = nn.Linear(net.head.in_features, n_classes)
+if args.net.startswith("vit"):
+    net.head = nn.Linear(net.head.in_features, n_classes)
+elif args.net.startswith("convnext"):
+    net.head.fc = nn.Linear(net.head.fc.in_features, n_classes)
+else: 
+    raise ValueError(f"Unsupported network: {args.net}")
 
 # For Multi-GPU
 if 'cuda' in device:
@@ -228,7 +237,7 @@ def train(epoch):
         #     % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d) | LR: %.6f'
                      % (train_loss/(batch_idx+1), 100.*correct/total, correct, total, optimizer.param_groups[0]['lr']))
-    return train_loss/(batch_idx+1)
+    return train_loss/(batch_idx+1), 100.*correct/total
 
 ##### Validation
 def test(epoch):
@@ -274,36 +283,52 @@ def test(epoch):
         appender.write(content + "\n")
     return test_loss, acc
 
+
+_out = 'tensorboard/{}/{}_lr_{}'.format(args.dataset, args.net, args.lr)
+if not os.path.isdir(_out):
+    os.makedirs(_out)
+
 list_loss = []
 list_acc = []
 
 if usewandb:
     wandb.watch(net)
-    
+
+writer = SummaryWriter(_out)
+
 net.cuda()
 for epoch in range(start_epoch, args.n_epochs):
     start = time.time()
-    trainloss = train(epoch)
-    val_loss, acc = test(epoch)
+    train_loss, train_acc = train(epoch)
+    val_loss, val_acc = test(epoch)
     
     scheduler.step(epoch-1) # step cosine scheduling
     
     list_loss.append(val_loss)
-    list_acc.append(acc)
+    list_acc.append(val_acc)
+
+    
+    writer.add_scalar('losses/train_loss', train_loss, epoch)
+    writer.add_scalar('losses/val_loss', val_loss, epoch)
+
+    writer.add_scalar('accuracy/train_acc', train_acc, epoch)
+    writer.add_scalar('accuracy/val_acc', val_acc, epoch)
     
     # Log training..
     if usewandb:
-        wandb.log({'epoch': epoch, 'train_loss': trainloss, 'val_loss': val_loss, "val_acc": acc, "lr": optimizer.param_groups[0]["lr"],
+        wandb.log({'epoch': epoch, 'train_loss': train_loss, 'val_loss': val_loss, "val_acc": val_acc, "lr": optimizer.param_groups[0]["lr"],
         "epoch_time": time.time()-start})
 
     # Write out csv..
     with open(f'log/log_{args.net}_patch{args.patch}.csv', 'w') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        writer.writerow(list_loss) 
-        writer.writerow(list_acc) 
+        csv_writer = csv.writer(f, lineterminator='\n')
+        csv_writer.writerow(list_loss) 
+        csv_writer.writerow(list_acc) 
     print(list_loss)
 
 # writeout wandb
 if usewandb:
     wandb.save("wandb_{}.h5".format(args.net))
+
+writer.close()
     

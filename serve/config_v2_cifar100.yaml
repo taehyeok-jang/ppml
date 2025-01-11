@@ -35,7 +35,7 @@ applications:
   deployments:
   - name: Router
   args:
-    dataset: cifar10
+    dataset: cifar100
     eps: 0.1
 
 ### Models in the model zoo
@@ -47,7 +47,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: mobilenetv2_x0_5
-    dataset: cifar10
+    dataset: cifar100
 
 - name: mobilenetv2_x0_75
   route_prefix: /v2/mobilenetv2_x0_75
@@ -57,7 +57,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: mobilenetv2_x0_75
-    dataset: cifar10
+    dataset: cifar100
 
 - name: mobilenetv2_x1_0
   route_prefix: /v2/mobilenetv2_x1_0
@@ -67,7 +67,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: mobilenetv2_x1_0
-    dataset: cifar10
+    dataset: cifar100
 
 - name: mobilenetv2_x1_4
   route_prefix: /v2/mobilenetv2_x1_4
@@ -77,7 +77,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: mobilenetv2_x1_4
-    dataset: cifar10
+    dataset: cifar100
 
 - name: repvgg_a0
   route_prefix: /v2/repvgg_a0
@@ -87,7 +87,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: repvgg_a0
-    dataset: cifar10
+    dataset: cifar100
 
 - name: repvgg_a1
   route_prefix: /v2/repvgg_a1
@@ -97,7 +97,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: repvgg_a1
-    dataset: cifar10
+    dataset: cifar100
 
 - name: repvgg_a2
   route_prefix: /v2/repvgg_a2
@@ -107,7 +107,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: repvgg_a2
-    dataset: cifar10
+    dataset: cifar100
 
 - name: resnet20
   route_prefix: /v2/resnet20
@@ -117,7 +117,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: resnet20
-    dataset: cifar10
+    dataset: cifar100
 
 - name: resnet32
   route_prefix: /v2/resnet32
@@ -127,7 +127,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: resnet32
-    dataset: cifar10
+    dataset: cifar100
 
 - name: resnet44
   route_prefix: /v2/resnet44
@@ -137,7 +137,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: resnet44
-    dataset: cifar10
+    dataset: cifar100
 
 - name: resnet56
   route_prefix: /v2/resnet56
@@ -147,7 +147,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: resnet56
-    dataset: cifar10
+    dataset: cifar100
 
 - name: shufflenetv2_x0_5
   route_prefix: /v2/shufflenetv2_x0_5
@@ -157,7 +157,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: shufflenetv2_x0_5
-    dataset: cifar10
+    dataset: cifar100
 
 - name: shufflenetv2_x1_0
   route_prefix: /v2/shufflenetv2_x1_0
@@ -167,7 +167,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: shufflenetv2_x1_0
-    dataset: cifar10
+    dataset: cifar100
 
 - name: shufflenetv2_x1_5
   route_prefix: /v2/shufflenetv2_x1_5
@@ -177,7 +177,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: shufflenetv2_x1_5
-    dataset: cifar10
+    dataset: cifar100
 
 - name: shufflenetv2_x2_0
   route_prefix: /v2/shufflenetv2_x2_0
@@ -187,7 +187,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: shufflenetv2_x2_0
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vgg11_bn
   route_prefix: /v2/vgg11_bn
@@ -197,7 +197,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vgg11_bn
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vgg13_bn
   route_prefix: /v2/vgg13_bn
@@ -207,7 +207,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vgg13_bn
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vgg16_bn
   route_prefix: /v2/vgg16_bn
@@ -217,7 +217,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vgg16_bn
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vgg19_bn
   route_prefix: /v2/vgg19_bn
@@ -227,7 +227,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vgg19_bn
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vit_small_patch16_384
   route_prefix: /v2/vit_small_patch16_384
@@ -237,7 +237,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vit_small_patch16_384
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vit_base_patch16_384
   route_prefix: /v2/vit_base_patch16_384
@@ -247,7 +247,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vit_base_patch16_384
-    dataset: cifar10
+    dataset: cifar100
 
 - name: vit_large_patch16_384
   route_prefix: /v2/vit_large_patch16_384
@@ -257,7 +257,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: vit_large_patch16_384
-    dataset: cifar10
+    dataset: cifar100
 
 - name: convnext_tiny
   route_prefix: /v2/convnext_tiny
@@ -267,7 +267,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: convnext_tiny
-    dataset: cifar10
+    dataset: cifar100
 
 - name: convnext_base
   route_prefix: /v2/convnext_base
@@ -277,7 +277,7 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: convnext_base
-    dataset: cifar10
+    dataset: cifar100
 
 - name: convnext_large
   route_prefix: /v2/convnext_large
@@ -287,4 +287,4 @@ applications:
     <<: *common_gpu_config
   args: 
     model_name: convnext_large
-    dataset: cifar10
+    dataset: cifar100

@@ -10,7 +10,7 @@ from huggingface_hub import upload_folder
 
 
 # 📂 **환경 설정**
-MODEL_NAME = "vit_large_patch16_384"
+MODEL_NAME = "convnext_large"
 DATASET = "cifar100"
 
 CHECKPOINT_PATH = f'./vision-transformers-cifar10/checkpoint/{DATASET}/{MODEL_NAME}-4-ckpt.t7'
@@ -37,9 +37,15 @@ for key, value in state_dict.items():
     print(f"{key}: {value.shape}")
 
 # 3️⃣ **모델 초기화 및 가중치 적용**
-print("==> Loading ViT model with timm..")
+print("==> Loading model with timm..")
 model = timm.create_model(MODEL_NAME, pretrained=True)
-model.head = nn.Linear(model.head.in_features, n_classes)
+
+if MODEL_NAME.startswith("vit"):
+    model.head = nn.Linear(model.head.in_features, n_classes)
+elif MODEL_NAME.startswith("convnext"):
+    model.head.fc = nn.Linear(model.head.fc.in_features, n_classes)
+else: 
+    raise ValueError(f"Unsupported network: {MODEL_NAME}")
 
 print(model)
 
@@ -63,7 +69,7 @@ print("==> Uploading model to Hugging Face Hub..")
 upload_folder(
     folder_path=SAVE_DIRECTORY,
     repo_id=MODEL_REPO,
-    commit_message="Upload fine-tuned ViT model"
+    commit_message="Upload fine-tuned model"
 )
 
 

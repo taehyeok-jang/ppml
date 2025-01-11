@@ -34,8 +34,10 @@ class PsmlDefenseProxy:
 
         """
         print("Initializing PsmlDefenseProxy... w/ eps {}, sensitivity {}".format(eps, sensitivity))
+        '''
         for model, spec in zip(pareto_front_models, pareto_front_spec):
             print(model, spec)
+        '''
 
         self.pareto_front = np.array(pareto_front_spec) 
         self.eps = eps
