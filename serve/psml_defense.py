@@ -85,3 +85,31 @@ class PsmlDefenseProxy:
             return model_name
             
         raise ValueError(f"Model {model_name} not available.")
+    
+
+class PsmlDefenseProxyV2(PsmlDefenseProxy):
+    def __init__(self, pareto_front_models, pareto_front_spec, sensitivity):
+        """
+        PsmlDefenseProxy that dynamically compute 'l1_permute_and_flip_mechanism' 
+        based on epsilon and query_point. 
+        
+        """
+        print("Initializing PsmlDefenseProxyV2... w/ eps {}, sensitivity {}".format("None", sensitivity))
+        super().__init__(pareto_front_models, pareto_front_spec, eps=None, sensitivity=sensitivity)
+
+    def l1_permute_and_flip_mechanism(self, eps, query_point):
+
+        remaining_indices = np.arange(self.pf_size)
+        np.random.shuffle(remaining_indices)
+        while len(remaining_indices) > 0:
+            selected_index = remaining_indices[0]
+            remaining_indices = remaining_indices[1:]
+            point = self.pareto_front[selected_index]
+
+            optimal_goodput = 1
+            point_l1_score = [self.l1_score(point[0], point[1], query_point[0], query_point[1]) - optimal_goodput]
+            prob_val = np.exp(eps * np.array(point_l1_score) / (2 * self.sensitivity))
+
+            # flip the coin with probability of heads being prob_val and return if it's heads
+            if np.random.rand() < prob_val:
+                return tuple(point)

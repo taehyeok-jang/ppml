@@ -20,7 +20,7 @@ from model_profiles import (
     CIFAR100_PARETO_FRONT_SPEC
 )
 
-from psml_defense import PsmlDefenseProxy
+from psml_defense import PsmlDefenseProxy, PsmlDefenseProxyV2
 
 
 '''
@@ -37,6 +37,11 @@ app = FastAPI()
 @serve.ingress(app)
 class Router:
   def __init__(self, dataset: str, eps: float):
+    """
+    eps:
+        only used to initialize phase, in PsmlDefenseProxy(V1)
+    """
+
     self.count = 0
     if dataset == "cifar10":
         pareto_front_models = CIFAR10_PARETO_FRONT_MODELS
@@ -46,11 +51,10 @@ class Router:
         pareto_front_spec = CIFAR100_PARETO_FRONT_SPEC
     else: 
         raise ValueError(f"Unsupported dataset: {dataset}")
-
-    self.proxy = PsmlDefenseProxy(
+    
+    self.proxy = PsmlDefenseProxyV2(
         pareto_front_models=pareto_front_models, 
         pareto_front_spec=pareto_front_spec, 
-        eps=eps, 
         sensitivity=0.01
        )
     
@@ -124,16 +128,16 @@ class Router:
     return self.s_route_request(accuracy, latency, image_bytes)
 
 
-  def s_route_request_batch(self, accuracy: float, latency: float, image_payloads: List[bytes]):
+  def s_route_request_batch(self, accuracy: float, latency: float, eps: float, image_payloads: List[bytes]):
       """
       Securely Route the classification request to the appropriate model deployment for a batch of image payloads.
       """
       query = (accuracy, latency)
-      selected = self.proxy.l1_permute_and_flip_mechanism(query)  # selected: (accuracy, latency)
+      selected = self.proxy.l1_permute_and_flip_mechanism(eps, query)  # selected: (accuracy, latency)
       model_name = self.proxy.m_query(selected)
       
       self.utility += self.proxy.l1_score(float(selected[0]), float(selected[1]), query[0], query[1])
-      print("s_route_request for {}, query {}", model_name, query)
+      print(f"s_route_request_batch to {model_name}, query {query} - eps {eps}")
 
       model_endpoint = f"http://localhost:8000/v2/{model_name}/b_classify_"
       try:
@@ -149,13 +153,13 @@ class Router:
 
   @app.post("/b_secure_classify_")
   async def batch_secure_classify_(
-      self, accuracy: float, latency: float, files: List[UploadFile] = File(...)
+      self, accuracy: float, latency: float, eps: float, files: List[UploadFile] = File(...)
   ):
       """
       Secure classification for a batch of images.
       """
       image_payloads = [await file.read() for file in files]
-      return self.s_route_request_batch(accuracy, latency, image_payloads)
+      return self.s_route_request_batch(accuracy, latency, eps, image_payloads)
 
 
 def builder(args: Dict[str, str]) -> Application:

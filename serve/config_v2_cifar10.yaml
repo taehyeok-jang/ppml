@@ -36,7 +36,7 @@ applications:
   - name: Router
   args:
     dataset: cifar10
-    eps: 0.1
+    # eps: 10
 
 ### Models in the model zoo
 - name: mobilenetv2_x0_5
