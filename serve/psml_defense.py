@@ -97,6 +97,35 @@ class PsmlDefenseProxyV2(PsmlDefenseProxy):
         print("Initializing PsmlDefenseProxyV2... w/ eps {}, sensitivity {}".format("None", sensitivity))
         super().__init__(pareto_front_models, pareto_front_spec, eps=None, sensitivity=sensitivity)
 
+    def select_element_from_pmf(self, pmf):
+        elements = list(pmf.keys())
+        probabilities = list(pmf.values())
+        
+        if np.sum(probabilities) == 0:
+            return None
+        
+        selected_element = np.random.choice(elements, p=probabilities)
+        
+        return selected_element
+
+    def l1_exponential_mechanism(self, eps, query_point):
+        l1_scores = []
+        for point in self.pareto_front:
+            l1_scores.append(self.l1_score(point[0], point[1], query_point[0], query_point[1]))
+        
+        prob_vals  = np.exp((eps * np.array(l1_scores)) / (2 * self.sensitivity))
+
+        proportional_probs = prob_vals / np.sum(prob_vals)
+        # print(proportional_probs)
+        # print(np.sum(proportional_probs))
+
+        pmf = dict()
+        for element, probability in zip(self.pareto_front, proportional_probs):
+            # print(element, probability)
+            pmf[str(element)] = probability
+        
+        return pmf
+
     def l1_permute_and_flip_mechanism(self, eps, query_point):
 
         remaining_indices = np.arange(self.pf_size)
