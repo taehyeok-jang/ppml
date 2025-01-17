@@ -88,14 +88,23 @@ class PsmlDefenseProxy:
     
 
 class PsmlDefenseProxyV2(PsmlDefenseProxy):
-    def __init__(self, pareto_front_models, pareto_front_spec, sensitivity):
+    def __init__(self, pareto_front_models, pareto_front_spec, eps, sensitivity, defense_policy):
         """
         PsmlDefenseProxy that dynamically compute 'l1_permute_and_flip_mechanism' 
         based on epsilon and query_point. 
         
         """
-        print("Initializing PsmlDefenseProxyV2... w/ eps {}, sensitivity {}".format("None", sensitivity))
+        print("Initializing PsmlDefenseProxyV2... w/ eps {}, sensitivity {}, defense_policy {}"
+              .format("None", sensitivity, defense_policy))
         super().__init__(pareto_front_models, pareto_front_spec, eps=None, sensitivity=sensitivity)
+        self.defense_policy = defense_policy
+
+        if defense_policy == "exponential":
+            self.l1_mechanism = self.l1_exponential_mechanism
+        elif defense_policy == "permute_and_flip":
+            self.l1_mechanism = self.l1_permute_and_flip_mechanism
+        else:
+            raise ValueError(f"Unsupported defense_policy: {defense_policy}")
 
     def select_element_from_pmf(self, pmf):
         elements = list(pmf.keys())
@@ -103,29 +112,31 @@ class PsmlDefenseProxyV2(PsmlDefenseProxy):
         
         if np.sum(probabilities) == 0:
             return None
-        
-        selected_element = np.random.choice(elements, p=probabilities)
-        
+
+        selected_index = np.random.choice(len(elements), p=probabilities)
+        selected_element = elements[selected_index]
+
         return selected_element
 
     def l1_exponential_mechanism(self, eps, query_point):
         l1_scores = []
         for point in self.pareto_front:
             l1_scores.append(self.l1_score(point[0], point[1], query_point[0], query_point[1]))
-        
-        prob_vals  = np.exp((eps * np.array(l1_scores)) / (2 * self.sensitivity))
 
+        # Scale the scores
+        scaled_scores = (eps * np.array(l1_scores)) / (2 * self.sensitivity)
+        
+        # Subtract max for numerical stability
+        max_score = np.max(scaled_scores)
+        stable_scores = scaled_scores - max_score
+        
+        # Compute probabilities using stable exponentials
+        prob_vals = np.exp(stable_scores)
         proportional_probs = prob_vals / np.sum(prob_vals)
-        # print(proportional_probs)
-        # print(np.sum(proportional_probs))
 
-        pmf = dict()
-        for element, probability in zip(self.pareto_front, proportional_probs):
-            # print(element, probability)
-            pmf[str(element)] = probability
+        pmf = {tuple(point): prob for point, prob in zip(self.pareto_front, proportional_probs)}        
+        return self.select_element_from_pmf(pmf)
         
-        return pmf
-
     def l1_permute_and_flip_mechanism(self, eps, query_point):
 
         remaining_indices = np.arange(self.pf_size)

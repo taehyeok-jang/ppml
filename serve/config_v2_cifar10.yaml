@@ -36,7 +36,8 @@ applications:
   - name: Router
   args:
     dataset: cifar10
-    # eps: 10
+    sensitivity: 0.01 
+    defense_policy: exponential
 
 ### Models in the model zoo
 - name: mobilenetv2_x0_5

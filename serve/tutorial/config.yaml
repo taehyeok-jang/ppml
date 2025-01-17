@@ -24,6 +24,7 @@ applications:
     deployments:
     - name: downloader
     - name: ImageClassifier
+
   - name: app2
     route_prefix: /translate
     import_path: text_translator:app

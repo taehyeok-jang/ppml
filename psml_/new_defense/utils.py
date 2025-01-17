@@ -156,13 +156,48 @@ def l1_exponential_mechanism(eps, pareto_front, sensitivity, acc_input, lat_inpu
     
     
     # sensitivity_array = np.full((len(pareto_front,)),sensitivity)
-   
-    prob_vals  = np.exp((eps * np.array(l1_scores)) / (2 * sensitivity))
 
+    """
+    VOL1 
+    """
+    # prob_vals  = np.exp((eps * np.array(l1_scores)) / (2 * sensitivity))
+
+    # proportional_probs = prob_vals / np.sum(prob_vals)
+    ## print(proportional_probs)
+    ## print(np.sum(proportional_probs))
+    ## print(proportional_probs.shape)
+
+    """
+    VOL2
+    """
+    """
+    # Scale the scores
+    scaled_scores = (eps * np.array(l1_scores)) / (2 * sensitivity)
+    
+    # Subtract max for numerical stability
+    max_score = np.max(scaled_scores)
+    stable_scores = scaled_scores - max_score
+    
+    # Compute probabilities using stable exponentials
+    prob_vals = np.exp(stable_scores)
     proportional_probs = prob_vals / np.sum(prob_vals)
-    # print(proportional_probs)
-    # print(np.sum(proportional_probs))
-    # print(proportional_probs.shape)
+    """
+
+    """
+    VOL 3
+    """
+    max_exp_input = np.log(np.finfo(float).max)
+    scaled_scores = (eps * np.array(l1_scores)) / (2 * self.sensitivity)
+    scaled_scores = np.clip(scaled_scores, -max_exp_input, max_exp_input)  # Clip to avoid overflow
+    prob_vals = np.exp(scaled_scores)
+
+    epsilon = 1e-12
+    proportional_probs = prob_vals / (np.sum(prob_vals) + epsilon)
+
+    if np.any(np.isnan(proportional_probs)) or np.sum(proportional_probs) == 0:
+        print("Warning: Invalid probabilities detected. Returning None.")
+        return None
+
 
     pmf = dict()
 

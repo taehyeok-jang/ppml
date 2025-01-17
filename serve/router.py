@@ -36,7 +36,7 @@ app = FastAPI()
 @serve.deployment
 @serve.ingress(app)
 class Router:
-  def __init__(self, dataset: str, eps: float):
+  def __init__(self, dataset: str, eps: float, sensitivity:float, defense_policy: str):
     """
     eps:
         only used to initialize phase, in PsmlDefenseProxy(V1)
@@ -52,10 +52,13 @@ class Router:
     else: 
         raise ValueError(f"Unsupported dataset: {dataset}")
     
+    # pareto_front_models, pareto_front_spec, eps, sensitivity, defense_policy
     self.proxy = PsmlDefenseProxyV2(
         pareto_front_models=pareto_front_models, 
         pareto_front_spec=pareto_front_spec, 
-        sensitivity=0.01
+        eps=eps,
+        sensitivity=sensitivity,
+        defense_policy=defense_policy
        )
     
     self.utility = 0 # measurement for system utility; in a trade-off relationship between the level of defense
@@ -133,7 +136,7 @@ class Router:
       Securely Route the classification request to the appropriate model deployment for a batch of image payloads.
       """
       query = (accuracy, latency)
-      selected = self.proxy.l1_permute_and_flip_mechanism(eps, query)  # selected: (accuracy, latency)
+      selected = self.proxy.l1_mechanism(eps, query)  # selected: (accuracy, latency)
       model_name = self.proxy.m_query(selected)
       
       self.utility += self.proxy.l1_score(float(selected[0]), float(selected[1]), query[0], query[1])
@@ -169,8 +172,12 @@ def builder(args: Dict[str, str]) -> Application:
 
     dataset = args.get("dataset", "cifar10")
     eps = float(args.get("eps", "0.1"))
+    sensitivity = float(args.get("sensitivity", "1.0"))
+    defense_policy = args.get("defense_policy", "none") # must be specified 
   
     print(f"Building deployment with dataset={dataset}")
     print(f"eps: {eps}")
+    print(f"sensitivity: {sensitivity}")
+    print(f"defense_policy: {defense_policy}")
 
-    return Router.bind(dataset, eps)
+    return Router.bind(dataset, eps, sensitivity, defense_policy)
